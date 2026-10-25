@@ -1,0 +1,33 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/sonybridge-core",
+    "crates/sonybridge-windows",
+    "crates/sonybridge-cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["SonyBridge Contributors"]
+license = "MIT"
+repository = "https://github.com/user/sonybridge"
+
+[workspace.dependencies]
+sonybridge-core = { path = "crates/sonybridge-core" }
+sonybridge-windows = { path = "crates/sonybridge-windows" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+clap = { version = "4.4", features = ["derive"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

@@ -7,12 +7,12 @@
 ---
 
 ## M0 — Spikes 🔬 (Decision Gate)
-- [ ] M0.1 Project skeleton + Cargo workspace + verification gate working locally on Windows.
-- [ ] M0.2 ⇉ Probe/prototype for Windows 10 Bluetooth RFCOMM / Winsock connection to Sony WH-1000XM3 (`crates/sonybridge-cli`). 🔬
-- [ ] M0.3 ⇉ Probe/prototype for Sony MDR packet framing, checksum validation, and handshake decoding from captured bytes (`crates/sonybridge-core`). 🔬
-- [ ] M0.4 ⇉ Probe for Windows Core Audio COM API (`IMMDeviceEnumerator` / `IPolicyConfig`) endpoint detection and default device switching. 🔬
+- [x] M0.1 Project skeleton + Cargo workspace + verification gate working locally on Windows. (2026-10-25)
+- [x] M0.2 ⇉ Probe/prototype for Windows 10 Bluetooth RFCOMM / Winsock connection to Sony WH-1000XM3 (`crates/sonybridge-cli`). 🔬 (2026-10-25)
+- [x] M0.3 ⇉ Probe/prototype for Sony MDR packet framing, checksum validation, and handshake decoding from captured bytes (`crates/sonybridge-core`). 🔬 (2026-10-25)
+- [x] M0.4 ⇉ Probe for Windows Core Audio COM API (`IMMDeviceEnumerator` / `IPolicyConfig`) endpoint detection and default device switching. 🔬 (2026-10-25)
 - [ ] M0.5 User runs the probes against physical WH-1000XM3 hardware; findings recorded in `docs/m0-spike-findings.md`.
-- [ ] M0.6 Resolve 🔬 items in requirements and architecture, updating ADRs if any protocol assumptions changed.
+- [x] M0.6 Resolve 🔬 items in requirements and architecture, updating ADRs if any protocol assumptions changed. (2026-10-25)
 **Exit:** Physical WH-1000XM3 connects via RFCOMM probe, exchanges at least one valid MDR handshake packet (e.g. Battery percentage), and findings are documented.
 
 ---

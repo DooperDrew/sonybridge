@@ -2,6 +2,14 @@
 
 Chronological record of milestones, decisions and discoveries. Newest first.
 
+## 2026-10-25 — M0 Spikes & Cargo Workspace Complete
+- Scaffolded Cargo workspace: `sonybridge-core`, `sonybridge-windows`, `sonybridge-cli`.
+- Implemented pure Sony MDR packet framing, checksum validation, command codecs, and connection state machine in `sonybridge-core` with 10 unit tests.
+- Implemented Windows 10 Bluetooth device discovery and Core Audio COM endpoint enumeration in `sonybridge-windows`.
+- Built diagnostic probe binary (`target/release/sonybridge-cli.exe`, 1.08 MB) for user hardware verification.
+- Documented findings in `docs/m0-spike-findings.md`.
+- Full verification gate passing (`cargo fmt`, `cargo clippy`, `cargo test`, `cargo build --release`).
+
 ## 2026-10-25 — Project Definition & Spec Skeleton
 - Bootstrapped project via `project-kickstart` skill.
 - Generated core specification:
