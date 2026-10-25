@@ -12,7 +12,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["SonyBridge Contributors"]
 license = "MIT"
-repository = "https://github.com/user/sonybridge"
+repository = "https://github.com/DooperDrew/sonybridge"
 
 [workspace.dependencies]
 sonybridge-core = { path = "crates/sonybridge-core" }
