@@ -86,6 +86,7 @@ cargo build --workspace --release
 
 ## 📚 Documentation Index
 
+- [Documentation Hierarchy & Reading Order (`docs/README.md`)](docs/README.md)
 - [01 — Vision & Problem Statement](docs/01-vision.md)
 - [02 — Requirements & Budgets](docs/02-requirements.md)
 - [03 — System Architecture](docs/03-architecture.md)
@@ -94,8 +95,11 @@ cargo build --workspace --release
 - [06 — QA & Hardware Validation Matrix](docs/06-qa-and-validation.md)
 - [07 — UX Enhancements & v0.2.0 Evolution](docs/07-ux-and-improvements.md)
 - [08 — Packaging & Distribution Strategy](docs/08-community-and-growth-strategy.md)
-- [Multi-Agent Engineering Methodology](docs/multi-agent-methodology.md)
+- [Multi-Agent & GitHub Copilot Cloud Methodology](docs/multi-agent-methodology.md)
+- [Release & Versioning Methodology](docs/release-methodology.md)
 - [M0 Protocol & Core Audio Spike Findings](docs/m0-spike-findings.md)
 - [User Guide](docs/user-guide.md)
 - [Lessons Learned](docs/lessons-learned.md)
+- [Model Fallback Log](docs/model-fallback-log.md)
+- [Contributing & Agent Workflow](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)

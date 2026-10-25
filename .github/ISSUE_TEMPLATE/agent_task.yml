@@ -1,0 +1,81 @@
+name: "🤖 Agent Implementation Task"
+description: Standardized, bounded task specification for GitHub Copilot Agent or worker subagents
+title: "[Task]: "
+labels: ["agent-task", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template when preparing a bounded, self-contained implementation task for **GitHub Copilot Agent** or autonomous worker subagents. Tasks created with this template enforce the **Sole Committer Protocol** and SonyBridge performance/safety budgets.
+  - type: input
+    id: objective
+    attributes:
+      label: 🎯 Task Objective
+      description: Concise statement of what needs to be implemented and why.
+      placeholder: e.g. Implement Sony WH-1000XM4 Speak-to-Chat MDR v1/v2 opcode and unit tests
+    validations:
+      required: true
+  - type: dropdown
+    id: complexity_tier
+    attributes:
+      label: 📊 Complexity Tier
+      description: Architectural workload classification for dynamic model selection.
+      options:
+        - "Tier 1 (Lean) — Pure MDR protocol framing, parser, schemas, unit tests, i18n, docs"
+        - "Tier 2 (Moderate) — Tauri UI views, system tray lifecycle, IPC commands, config storage"
+        - "Tier 3 (Complex / Critical) — WinRT Bluetooth RFCOMM sockets, Windows Core Audio COM routing, MDR state machine"
+    validations:
+      required: true
+  - type: input
+    id: target_module
+    attributes:
+      label: 📦 Target Crate / Boundary
+      description: Scope work to a single crate/module boundary whenever possible to prevent merge friction.
+      placeholder: e.g. crates/sonybridge-core, crates/sonybridge-windows, crates/sonybridge-app
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: 📁 Target Files & Ownership
+      description: Explicit list of files the agent owns for this task.
+      placeholder: |
+        - crates/sonybridge-core/src/commands.rs
+        - crates/sonybridge-core/src/state.rs
+    validations:
+      required: true
+  - type: checkboxes
+    id: invariants
+    attributes:
+      label: 🛡️ Architectural & Safety Invariants
+      options:
+        - label: "Pure Core Isolation: Deterministic MDR logic in crates/sonybridge-core with #![forbid(unsafe_code)] and zero OS dependencies"
+        - label: "Performance Budgets: Respect NFR budgets in docs/02-requirements.md (<= 35 MB idle RAM, 0% idle CPU)"
+        - label: "Safety & COM Lifetimes: Document unsafe Win32/COM invariants and drop COM pointers before CoUninitialize()"
+        - label: "Localization: Zero hardcoded user-facing strings; all UI text goes through en.toml / it.toml and i18n.rs"
+        - label: "Claims Follow Evidence: Automated unit tests run locally; physical WH-1000XM3 QA marked Pending until confirmed"
+  - type: textarea
+    id: instructions
+    attributes:
+      label: 📝 Implementation Steps
+      description: Step-by-step instructions for the coding agent.
+      placeholder: |
+        1. Add new command opcode and payload parser in crates/sonybridge-core
+        2. Add round-trip unit tests verifying byte-stuffing and checksums
+        3. Run the Cargo workspace verification gate
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: ✅ Verifiable Acceptance Criteria
+      description: Checkbox list of verifiable outcomes.
+      value: |
+        - [ ] Unit tests added covering new logic and edge cases
+        - [ ] `cargo fmt --all -- --check` passes cleanly
+        - [ ] `cargo clippy --workspace --all-targets -- -D warnings` passes with zero warnings/errors
+        - [ ] `cargo test --workspace` passes cleanly
+        - [ ] `cargo build --workspace --release` succeeds
+        - [ ] Delivered as a Draft PR on a feature branch (Sole Committer Protocol)
+    validations:
+      required: true

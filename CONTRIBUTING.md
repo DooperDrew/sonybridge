@@ -1,23 +1,70 @@
 # Contributing to SonyBridge
 
-Contributions, bug reports, and protocol captures for additional Sony models (`WH-1000XM3`, `WH-1000XM4`, `WH-1000XM5`, `WF-1000XM4`, `WF-1000XM5`) are welcome!
+Thank you for your interest in contributing to **SonyBridge**! This project follows a spec-first, agent-ready development methodology designed to support seamless collaboration between human developers, local AI pair programmers (Antigravity), and cloud worker agents (GitHub Copilot).
 
-## Development Prerequisites
-- Windows 10 (1903+) or Windows 11
-- Rust stable toolchain (`rustup`)
-- Microsoft Edge WebView2 Runtime (pre-installed on Windows 10/11)
+---
 
-## Verification Gate
-Before opening a pull request, ensure all four workspace checks pass with zero warnings:
+## 🧭 Core Principles
+
+1. **Specs Come First:** No application code should be modified or added without a corresponding task in [`docs/05-roadmap.md`](docs/05-roadmap.md) and requirements defined in [`docs/02-requirements.md`](docs/02-requirements.md).
+2. **Claims Follow Evidence:** Never submit or approve pull requests claiming performance gains or hardware compatibility without empirical benchmark results recorded in [`docs/06-qa-and-validation.md`](docs/06-qa-and-validation.md).
+3. **Continuous Learning:** When resolving bugs, edge cases, or tool friction, document the root cause and the rule created in [`docs/lessons-learned.md`](docs/lessons-learned.md).
+4. **Sole Committer Protocol:** To prevent merge collisions and broken release states, only the Lead Agent / repository maintainer merges to `main`, closes issues, and creates releases.
+
+---
+
+## 🛠️ Development & Pair Programming Workflow
+
+### 1. Branch Strategy
+- Work on feature branches branched from `main`.
+- Naming convention: `<type>/<milestone>-<short-description>` (e.g., `feat/m2-rfcomm-socket`, `fix/m3-com-lifetime`).
+- When working with AI worker agents (Copilot / subagents), branches follow `task/<issue-id>-<description>`.
+
+### 2. Task Lifecycle & Cloud Agent Collaboration
+```
+[ Maintainer / Lead Agent ] ──► Creates GitHub Issue (agent_task.yml)
+                                              │
+                                              ▼
+                             [ GitHub Copilot Agent (Cloud) ]
+                                              │
+                                              ▼
+                             Opens Draft PR (task/<issue-id>-<desc>)
+                                              │
+                                              ▼
+[ Maintainer / Lead Agent ] ──► Runs Verification Gate locally & Merges to main
+```
+
+Before starting any task:
+1. Identify the task ID in [`docs/05-roadmap.md`](docs/05-roadmap.md).
+2. Confirm the complexity tier (T1 Lean, T2 Moderate, T3 Critical) defined in [`AGENTS.md`](AGENTS.md).
+3. Ensure target files are disjoint from other concurrently active tasks.
+
+### 3. Verification Gate
+Before committing or submitting a pull request, the Cargo workspace verification gate must pass cleanly with zero warnings:
 ```powershell
+$env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH"
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 cargo build --workspace --release
 ```
 
-## Capturing Hardware Diagnostic Logs
-If you are testing with physical Sony headphones, run the headless diagnostic probe and paste the JSON output into Issue `#10` or `#11`:
+### 4. Capturing Hardware Diagnostic Logs (WH-1000XM3 / XM4 / XM5)
+If you are testing with physical Sony headphones, run the headless diagnostic probe and paste the JSON output into Issue [`#10`](https://github.com/DooperDrew/sonybridge/issues/10) or [`#11`](https://github.com/DooperDrew/sonybridge/issues/11):
 ```powershell
 .\sonybridge-cli.exe probe
 ```
+
+### 5. Commits & Changelog
+- Use Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`) or milestone prefixes (`M<x>.<y>: <summary>`).
+- Add notable changes to [`CHANGELOG.md`](CHANGELOG.md).
+
+---
+
+## 🤖 Guidelines for AI Agents
+
+All AI assistants (Antigravity, GitHub Copilot, Claude Code, Cursor, etc.) must follow [`AGENTS.md`](AGENTS.md) and [`.github/copilot-instructions.md`](.github/copilot-instructions.md) as binding instructions:
+- **Lead Agent (Antigravity):** Operates as the **sole committer** when interacting with Git remotes. Manages milestones/issues, packages portable `.zip` releases, and merges pull requests.
+- **Worker Subagents & Copilot Agent:** Strictly forbidden from running `git commit`, `git push`, or merging directly to `main`. Deliver work exclusively via **Draft Pull Requests** on `task/<issue-id>-<description>`.
+- **Maintain documentation integrity:** Do not remove existing comments, docstrings, or structure templates unless instructed.
+- **Windows / PowerShell hygiene:** Force UTF-8 encoding when writing files on Windows (`Set-Content -Encoding utf8`). Avoid unconstrained recursive searches over dependency caches (`node_modules`, `target`, `dist`).
