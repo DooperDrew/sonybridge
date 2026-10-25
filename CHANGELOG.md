@@ -1,39 +1,28 @@
-# Changelog & Development Log
+# Changelog
 
-Chronological record of milestones, decisions and discoveries. Newest first.
+All notable changes to **SonyBridge** are documented in this file.
 
-## 2026-10-25 — M1 through M6: Complete Desktop Companion & Release Build
-- Implemented `crates/sonybridge-app` with Tauri v2, system tray context menu, left-click toggle, and minimize-to-tray window lifecycle.
-- Created responsive dark & gold desktop UI (`crates/sonybridge-app/ui/`) with:
-  - Real-time battery gauge and charging indicator.
-  - Active Noise Canceling (ANC) mode buttons and 20-step Ambient Sound slider with 75 ms debounce.
-  - Focus on Voice vocal filter checkbox.
-  - 5-band hardware Equalizer (-10 to +10 dB) with factory presets (Excited, Bright, Vocal, Bass Boost, etc.) and Clear Bass slider.
-  - 1-Click "Enforce A2DP" button to prevent Windows Hands-Free audio degradation.
-  - Earcup Touch Sensor toggle and Auto-Power Off timeout selector.
-- Authored comprehensive User Guide & Hardware Testing Manual in `docs/user-guide.md`.
-- Produced optimized standalone release binaries:
-  - `target/release/sonybridge-app.exe` (5.07 MB)
-  - `target/release/sonybridge-cli.exe` (1.45 MB)
-- All automated unit/invariant tests passing (11 tests). NFR budgets verified.
+## [0.2.0] - 2026-10-25
 
-## 2026-10-25 — M0 Spikes & Cargo Workspace Complete
-- Scaffolded Cargo workspace: `sonybridge-core`, `sonybridge-windows`, `sonybridge-cli`.
-- Implemented pure Sony MDR packet framing, checksum validation, command codecs, and connection state machine in `sonybridge-core` with 10 unit tests.
-- Implemented Windows 10 Bluetooth device discovery and Core Audio COM endpoint enumeration in `sonybridge-windows`.
-- Built diagnostic probe binary (`target/release/sonybridge-cli.exe`, 1.08 MB) for user hardware verification.
-- Documented findings in `docs/m0-spike-findings.md`.
-- Full verification gate passing (`cargo fmt`, `cargo clippy`, `cargo test`, `cargo build --release`).
+### Added
+- **Real Sony WH-1000XM3 MDR v1 Wire Protocol (`crates/sonybridge-core`)**:
+  - Added authentic Sony MDR v1 byte-stuffed framing (`0x3E` start marker, `0x3C` end marker, `0x3D` escape byte with `0x10` mask, `0x0C` `DATA_MDR`, `0x01` `ACK`, and full header+payload modulo-256 checksum).
+  - Added physical WH-1000XM3 MDR v1 command encoders (`0x68` `NCASM_SET_PARAM` for Dual NC, Wind Noise Reduction, and 20-step Ambient Sound + Voice Passthrough; `0x58` `EQEBB_SET_PARAM` for Clear Bass `-10..+10` and 5-band Equalizer; `0x12`/`0x13` Battery inquiry/reply; `0x28` Auto-Power Off; `0xD8` Touch Panel control).
+- **Live WinRT RFCOMM Socket & Core Audio `IPolicyConfig` Routing (`crates/sonybridge-windows`)**:
+  - Connected `WinRtRfcommTransport` over `Windows::Devices::Bluetooth::Rfcomm::RfcommDeviceService` and `StreamSocket` (`DataWriter`/`DataReader`) targeting Sony MDR v1 (`96cc203e-5068-46ad-b32d-396ceebe3928`), MDR v2 (`956c7b26-d49a-4ba8-b03f-b17d393cb6e2`), and SPP (`00001101-0000-1000-8000-00805f9b34fb`).
+  - Implemented `AudioEndpointSanitizer::enforce_stereo_a2dp()` using the Windows Core Audio `IPolicyConfig` COM vtable to switch default playback across `eConsole`, `eMultimedia`, and `eCommunications` away from muffled `Hands-Free AG Audio` to high-res Stereo (`A2DP`).
+  - Added `AutostartManager` for per-user `HKCU\Software\Microsoft\Windows\CurrentVersion\Run\SonyBridge` registration.
+- **3-Tab Adaptive UI, 1-Click Sound Profiles & First-Run Onboarding (`crates/sonybridge-app`)**:
+  - Redesigned the tray flyout into 3 tabs (`Dashboard & EQ`, `Windows & Power`, `Architecture & Wire Inspector`).
+  - Added 4 built-in 1-click Sound Profiles (*Focus (Max ANC)*, *Office / Calls*, *Cinema / Bass Boost*, *Studio Reference*).
+  - Added interactive First-Run Onboarding Wizard modal and bilingual English/Italian (`EN`/`IT`) localization switcher.
+  - Added live hexadecimal wire packet telemetry inspector.
+- **Zero-Build Portable Release Packaging & Setup Wizard (`scripts/`, `packaging/`)**:
+  - Added `scripts/package-release.ps1`, `scripts/setup.cmd`, `scripts/setup-wizard.ps1`, `scripts/install.ps1`, `scripts/uninstall.ps1`, and `scripts/generate-manifests.ps1` (Scoop & WinGet manifests).
 
-## 2026-10-25 — Project Definition & Spec Skeleton
-- Bootstrapped project via `project-kickstart` skill.
-- Generated core specification:
-  - `docs/01-vision.md`: Defined core pain point, target users, guiding principles, and v1 non-goals.
-  - `docs/02-requirements.md`: Specified functional requirements (F1–F8) and performance budgets (NFR-P1 to NFR-P5).
-  - `docs/03-architecture.md`: Architecture specification with Tauri v2 + Rust Core, module boundaries, and Mermaid diagrams.
-  - `docs/04-ux.md`: System tray layout, main dashboard UX flow, and hardware sync rules.
-  - `docs/05-roadmap.md`: Sized, parallel-ready milestone roadmap from M0 spikes to M7 retrospective.
-  - `docs/06-qa-and-validation.md`: Verification levels, NFR budget tracking, and real-environment hardware QA matrix.
-  - `docs/decisions/0001-rust-tauri-stack.md`: ADR accepting Rust + Tauri v2 architecture.
-  - `AGENTS.md`: Mandatory operating guidelines, verification gate, and complexity tiers.
-- Open Spikes: M0.2 (WinRT/Winsock RFCOMM connectivity), M0.3 (Sony MDR protocol framing & handshake), M0.4 (Windows Core Audio endpoint routing).
+## [0.1.0] - 2026-10-25
+
+### Added
+- Initial Rust Cargo workspace (`sonybridge-core`, `sonybridge-windows`, `sonybridge-cli`, `sonybridge-app`).
+- Canonical MDR packet framing, state machine, mock transport, Core Audio endpoint enumeration, and Tauri v2 system tray application.
+- Full specification suite (`docs/01-vision.md` through `docs/06-qa-and-validation.md`, `AGENTS.md`).

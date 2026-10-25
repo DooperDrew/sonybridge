@@ -1,0 +1,22 @@
+[meta]
+code = "it"
+name = "Italiano"
+
+[strings]
+app_title = "SonyBridge"
+subtitle = "Assistente Desktop WH-1000XM3 / XM4 / XM5"
+status_connected = "Connesso"
+status_disconnected = "Standby / Disconnesso"
+btn_reconnect = "Riconnetti"
+tab_dashboard = "Pannello & EQ"
+tab_audio = "Windows & Alimentazione"
+tab_architecture = "Architettura & Ispettore Pacchetti"
+anc_title = "Eliminazione Rumore & Suono Ambiente"
+mode_nc = "Eliminazione Rumore"
+mode_ambient = "Suono Ambiente"
+mode_off = "Disattivato"
+voice_focus = "Risalta Voce (Filtro Banda Vocale)"
+eq_title = "Equalizzatore Hardware a 5 Bande (EEPROM)"
+clear_bass = "Clear Bass (Sub-Bassi DSP)"
+enforce_a2dp = "Forza Stereo A2DP"
+autostart_label = "Avvia SonyBridge all'accesso di Windows"

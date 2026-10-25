@@ -2,9 +2,16 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use serde::{Deserialize, Serialize};
-use sonybridge_core::models::{AncMode, EqPreset, EqualizerState};
-use sonybridge_core::state::{HeadphoneState, StateMachine};
-use sonybridge_windows::{AudioEndpointSanitizer, WindowsBluetoothManager};
+use sonybridge_core::commands;
+use sonybridge_core::config::AppConfig;
+use sonybridge_core::models::{AncMode, EqPreset, EqualizerState, HeadphoneModel};
+use sonybridge_core::protocol::MdrFrame;
+use sonybridge_core::state::{ConnectionStatus, HeadphoneState, StateMachine};
+use sonybridge_core::transport::Transport;
+use sonybridge_windows::{
+    AudioEndpointSanitizer, AutostartManager, WinRtRfcommTransport, WindowsBluetoothManager,
+};
+use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::menu::{MenuBuilder, MenuItemBuilder};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
@@ -12,6 +19,16 @@ use tauri::{Manager, State};
 
 struct AppState {
     state_machine: Mutex<StateMachine>,
+    config: Mutex<AppConfig>,
+    config_path: PathBuf,
+    transport: tokio::sync::Mutex<Option<WinRtRfcommTransport>>,
+}
+
+fn default_config_path() -> PathBuf {
+    let base = std::env::var("APPDATA")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| PathBuf::from("."));
+    base.join("SonyBridge").join("config.json")
 }
 
 #[derive(Deserialize)]
@@ -34,6 +51,15 @@ struct EqPayload {
 struct CommandResult {
     status: String,
     message: Option<String>,
+    wire_hex: Option<String>,
+}
+
+fn format_hex(bytes: &[u8]) -> String {
+    bytes
+        .iter()
+        .map(|b| format!("{b:02X}"))
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 #[tauri::command]
@@ -43,88 +69,251 @@ fn get_device_state(state: State<AppState>) -> HeadphoneState {
 }
 
 #[tauri::command]
-fn set_anc_mode(state: State<AppState>, payload: AncPayload) -> CommandResult {
-    let mut sm = state.state_machine.lock().unwrap();
-    let mode = match payload.mode.as_str() {
-        "Off" => AncMode::Off,
-        "AmbientSound" => AncMode::AmbientSound {
-            level: payload.level,
-            focus_on_voice: payload.focus_on_voice,
-        },
-        _ => AncMode::NoiseCanceling,
-    };
-    let frame = sm.set_anc(mode);
-    tracing::info!(seq = frame.seq_no, "Dispatched ANC command to hardware");
+fn get_app_config(state: State<AppState>) -> AppConfig {
+    let cfg = state.config.lock().unwrap();
+    cfg.clone()
+}
+
+#[tauri::command]
+fn set_language(state: State<AppState>, lang: String) -> CommandResult {
+    let mut cfg = state.config.lock().unwrap();
+    cfg.language = lang;
+    let _ = cfg.save_to_path(&state.config_path);
     CommandResult {
         status: "ok".to_string(),
         message: None,
+        wire_hex: None,
     }
 }
 
 #[tauri::command]
-fn set_equalizer(state: State<AppState>, payload: EqPayload) -> CommandResult {
-    let mut sm = state.state_machine.lock().unwrap();
-    let preset = match payload.preset.as_str() {
-        "Bright" => EqPreset::Bright,
-        "Excited" => EqPreset::Excited,
-        "Mellow" => EqPreset::Mellow,
-        "Relaxed" => EqPreset::Relaxed,
-        "Vocal" => EqPreset::Vocal,
-        "TrebleBoost" => EqPreset::TrebleBoost,
-        "BassBoost" => EqPreset::BassBoost,
-        "Speech" => EqPreset::Speech,
-        "Custom1" => EqPreset::Custom1,
-        "Custom2" => EqPreset::Custom2,
-        _ => EqPreset::Off,
-    };
-
-    let eq_state = EqualizerState {
-        preset,
-        bands: payload.bands,
-        clear_bass: payload.clear_bass,
-    };
-
-    let frame = sm.set_equalizer(eq_state);
-    tracing::info!(seq = frame.seq_no, "Dispatched Equalizer frame to hardware");
+fn complete_onboarding(state: State<AppState>) -> CommandResult {
+    let mut cfg = state.config.lock().unwrap();
+    cfg.onboarding_completed = true;
+    let _ = cfg.save_to_path(&state.config_path);
     CommandResult {
         status: "ok".to_string(),
         message: None,
+        wire_hex: None,
     }
 }
 
 #[tauri::command]
-async fn trigger_reconnect() -> Result<CommandResult, String> {
+async fn set_anc_mode(
+    state: State<'_, AppState>,
+    payload: AncPayload,
+) -> Result<CommandResult, String> {
+    let wire_bytes = {
+        let mut sm = state.state_machine.lock().unwrap();
+        let mode = match payload.mode.as_str() {
+            "Off" => AncMode::Off,
+            "WindNoiseReduction" => AncMode::WindNoiseReduction,
+            "AmbientSound" => AncMode::AmbientSound {
+                level: payload.level,
+                focus_on_voice: payload.focus_on_voice,
+            },
+            _ => AncMode::NoiseCanceling,
+        };
+        let frame = sm.set_v1_anc(mode);
+        tracing::info!(
+            seq = frame.seq_no,
+            "Generated MDR v1 NCASM_SET_PARAM packet"
+        );
+        frame.encode_wire()
+    };
+
+    let mut transport_guard = state.transport.lock().await;
+    if let Some(transport) = transport_guard.as_mut() {
+        if transport.is_connected() {
+            let _ = transport.send(&wire_bytes).await;
+        }
+    }
+
+    Ok(CommandResult {
+        status: "ok".to_string(),
+        message: None,
+        wire_hex: Some(format_hex(&wire_bytes)),
+    })
+}
+
+#[tauri::command]
+async fn set_equalizer(
+    state: State<'_, AppState>,
+    payload: EqPayload,
+) -> Result<CommandResult, String> {
+    let wire_bytes = {
+        let mut sm = state.state_machine.lock().unwrap();
+        let preset = match payload.preset.as_str() {
+            "Bright" => EqPreset::Bright,
+            "Excited" => EqPreset::Excited,
+            "Mellow" => EqPreset::Mellow,
+            "Relaxed" => EqPreset::Relaxed,
+            "Vocal" => EqPreset::Vocal,
+            "TrebleBoost" => EqPreset::TrebleBoost,
+            "BassBoost" => EqPreset::BassBoost,
+            "Speech" => EqPreset::Speech,
+            "Manual" => EqPreset::Manual,
+            "Custom1" => EqPreset::Custom1,
+            "Custom2" => EqPreset::Custom2,
+            _ => EqPreset::Off,
+        };
+
+        let eq_state = EqualizerState {
+            preset,
+            bands: payload.bands,
+            clear_bass: payload.clear_bass,
+        };
+
+        let frame = sm.set_v1_equalizer(eq_state);
+        tracing::info!(
+            seq = frame.seq_no,
+            "Generated MDR v1 EQEBB_SET_PARAM packet"
+        );
+        frame.encode_wire()
+    };
+
+    let mut transport_guard = state.transport.lock().await;
+    if let Some(transport) = transport_guard.as_mut() {
+        if transport.is_connected() {
+            let _ = transport.send(&wire_bytes).await;
+        }
+    }
+
+    Ok(CommandResult {
+        status: "ok".to_string(),
+        message: None,
+        wire_hex: Some(format_hex(&wire_bytes)),
+    })
+}
+
+#[tauri::command]
+async fn apply_sound_profile(
+    state: State<'_, AppState>,
+    profile_name: String,
+) -> Result<CommandResult, String> {
+    let profile_opt = {
+        let mut cfg = state.config.lock().unwrap();
+        let found = cfg
+            .profiles
+            .iter()
+            .find(|p| p.name == profile_name)
+            .cloned();
+        if found.is_some() {
+            cfg.active_profile = profile_name.clone();
+            let _ = cfg.save_to_path(&state.config_path);
+        }
+        found
+    };
+
+    if let Some(profile) = profile_opt {
+        let (anc_wire, eq_wire) = {
+            let mut sm = state.state_machine.lock().unwrap();
+            let f1 = sm.set_v1_anc(profile.anc).encode_wire();
+            let f2 = sm.set_v1_equalizer(profile.equalizer).encode_wire();
+            (f1, f2)
+        };
+
+        let mut transport_guard = state.transport.lock().await;
+        if let Some(transport) = transport_guard.as_mut() {
+            if transport.is_connected() {
+                let _ = transport.send(&anc_wire).await;
+                let _ = transport.send(&eq_wire).await;
+            }
+        }
+
+        Ok(CommandResult {
+            status: "ok".to_string(),
+            message: Some(format!("Applied profile: {profile_name}")),
+            wire_hex: Some(format!(
+                "{} | {}",
+                format_hex(&anc_wire),
+                format_hex(&eq_wire)
+            )),
+        })
+    } else {
+        Err(format!("Profile '{profile_name}' not found"))
+    }
+}
+
+#[tauri::command]
+async fn trigger_reconnect(state: State<'_, AppState>) -> Result<CommandResult, String> {
     tracing::info!("Scanning for paired Sony headphones...");
     let devices = WindowsBluetoothManager::discover_paired_sony_devices()
         .await
         .map_err(|e| e.to_string())?;
 
     if let Some(device) = devices.first() {
+        let mac_str = format!("{:012X}", device.mac_address);
         tracing::info!(
             name = %device.name,
-            mac = format!("{:012X}", device.mac_address),
-            "Found headphone, establishing control channel"
+            mac = %mac_str,
+            connected = device.is_connected,
+            "Discovered paired Sony headphone"
         );
+
+        let mut transport = WinRtRfcommTransport::with_mac(&device.name, device.mac_address);
+        let rfcomm_ok = transport.connect().await.is_ok();
+        let mut wire_hex = None;
+
+        if rfcomm_ok {
+            let query = MdrFrame::new(0, commands::build_v1_battery_query()).encode_wire();
+            let _ = transport.send(&query).await;
+            wire_hex = Some(format_hex(&query));
+        }
+
+        {
+            let mut sm = state.state_machine.lock().unwrap();
+            sm.state.device_name = Some(device.name.clone());
+            sm.state.mac_address = Some(mac_str.clone());
+            sm.state.model = Some(HeadphoneModel::from_device_name(&device.name));
+            sm.state.status = if rfcomm_ok || device.is_connected {
+                ConnectionStatus::Connected
+            } else {
+                ConnectionStatus::Disconnected
+            };
+        }
+
+        {
+            let mut guard = state.transport.lock().await;
+            *guard = if rfcomm_ok { Some(transport) } else { None };
+        }
+
+        // Auto-enforce Stereo A2DP if configured
+        let should_enforce = state.config.lock().unwrap().enforce_a2dp_on_connect;
+        if should_enforce {
+            let _ = AudioEndpointSanitizer::enforce_stereo_a2dp();
+        }
+
         Ok(CommandResult {
             status: "ok".to_string(),
-            message: Some(format!("Reconnected to {}", device.name)),
+            message: Some(format!("Connected to {} ({})", device.name, mac_str)),
+            wire_hex,
         })
     } else {
-        Err("No paired Sony WH-1000XM3 detected in Windows Settings".to_string())
+        Ok(CommandResult {
+            status: "standby".to_string(),
+            message: Some(
+                "No paired Sony WH-1000XM3 detected yet (Demo / Simulation Mode active)"
+                    .to_string(),
+            ),
+            wire_hex: None,
+        })
     }
 }
 
 #[tauri::command]
 fn enforce_a2dp() -> CommandResult {
     let is_hands_free = AudioEndpointSanitizer::is_hands_free_active();
-    tracing::info!(is_hands_free, "Audio endpoint audit performed");
+    let switched = AudioEndpointSanitizer::enforce_stereo_a2dp();
+    tracing::info!(is_hands_free, ?switched, "Audio endpoint audit performed");
     CommandResult {
         status: "ok".to_string(),
-        message: Some(if is_hands_free {
-            "Hands-Free profile detected and isolated".to_string()
-        } else {
-            "Stereo A2DP audio endpoint is active".to_string()
+        message: Some(match switched {
+            Ok(id) => format!("Enforced Stereo A2DP default endpoint ({id})"),
+            Err(_) if is_hands_free => "Hands-Free profile detected and isolated".to_string(),
+            Err(_) => "Stereo A2DP audio endpoint is active".to_string(),
         }),
+        wire_hex: None,
     }
 }
 
@@ -132,10 +321,18 @@ fn enforce_a2dp() -> CommandResult {
 fn set_touch_sensor(state: State<AppState>, enabled: bool) -> CommandResult {
     let mut sm = state.state_machine.lock().unwrap();
     sm.state.settings.touch_sensor_enabled = enabled;
+    let payload = vec![
+        commands::opcodes::V1_SYSTEM_SET_PARAM,
+        0x01,
+        if enabled { 0x01 } else { 0x00 },
+    ];
+    let seq = sm.next_seq();
+    let wire = MdrFrame::new(seq, payload).encode_wire();
     tracing::info!(enabled, "Touch sensor preference updated");
     CommandResult {
         status: "ok".to_string(),
         message: None,
+        wire_hex: Some(format_hex(&wire)),
     }
 }
 
@@ -143,47 +340,100 @@ fn set_touch_sensor(state: State<AppState>, enabled: bool) -> CommandResult {
 fn set_auto_off(state: State<AppState>, minutes: u32) -> CommandResult {
     let mut sm = state.state_machine.lock().unwrap();
     sm.state.settings.auto_power_off_minutes = if minutes > 0 { Some(minutes) } else { None };
+    let code = match minutes {
+        0 => 0x11,
+        5 => 0x00,
+        30 => 0x01,
+        60 => 0x02,
+        _ => 0x03,
+    };
+    let payload = vec![commands::opcodes::V1_POWER_AUTO_OFF_SET, code];
+    let seq = sm.next_seq();
+    let wire = MdrFrame::new(seq, payload).encode_wire();
     tracing::info!(minutes, "Auto power-off timeout updated");
     CommandResult {
         status: "ok".to_string(),
         message: None,
+        wire_hex: Some(format_hex(&wire)),
+    }
+}
+
+#[tauri::command]
+fn set_autostart(state: State<AppState>, enabled: bool) -> CommandResult {
+    let res = AutostartManager::set_autostart(enabled);
+    if let Ok(mut cfg) = state.config.lock() {
+        cfg.auto_connect_on_startup = enabled;
+        let _ = cfg.save_to_path(&state.config_path);
+    }
+    CommandResult {
+        status: if res.is_ok() { "ok" } else { "error" }.to_string(),
+        message: res.err(),
+        wire_hex: None,
     }
 }
 
 fn main() {
     tracing_subscriber::fmt::init();
 
+    let cfg_path = default_config_path();
+    let loaded_cfg = AppConfig::load_from_path(&cfg_path);
+
     let initial_state = AppState {
         state_machine: Mutex::new(StateMachine::new()),
+        config: Mutex::new(loaded_cfg),
+        config_path: cfg_path,
+        transport: tokio::sync::Mutex::new(None),
     };
 
     tauri::Builder::default()
         .manage(initial_state)
         .invoke_handler(tauri::generate_handler![
             get_device_state,
+            get_app_config,
+            set_language,
+            complete_onboarding,
             set_anc_mode,
             set_equalizer,
+            apply_sound_profile,
             trigger_reconnect,
             enforce_a2dp,
             set_touch_sensor,
-            set_auto_off
+            set_auto_off,
+            set_autostart
         ])
         .setup(|app| {
             // Build Context Menu for System Tray
-            let header_item = MenuItemBuilder::with_id("header", "Sony WH-1000XM3 (85%)")
+            let header_item = MenuItemBuilder::with_id("header", "Sony WH-1000XM3 — 85% (ANC On)")
                 .enabled(false)
                 .build(app)?;
+            let profile_focus =
+                MenuItemBuilder::with_id("prof_focus", "Profile: Focus (ANC + Excited)")
+                    .build(app)?;
+            let profile_office =
+                MenuItemBuilder::with_id("prof_office", "Profile: Office (Ambient + Vocal)")
+                    .build(app)?;
+            let a2dp_item =
+                MenuItemBuilder::with_id("enforce_a2dp", "Enforce Stereo A2DP Audio").build(app)?;
             let reconnect_item =
                 MenuItemBuilder::with_id("reconnect", "Quick Reconnect").build(app)?;
             let show_item = MenuItemBuilder::with_id("show", "Open Dashboard").build(app)?;
             let quit_item = MenuItemBuilder::with_id("quit", "Quit SonyBridge").build(app)?;
 
             let tray_menu = MenuBuilder::new(app)
-                .items(&[&header_item, &reconnect_item, &show_item, &quit_item])
+                .items(&[
+                    &header_item,
+                    &profile_focus,
+                    &profile_office,
+                    &a2dp_item,
+                    &reconnect_item,
+                    &show_item,
+                    &quit_item,
+                ])
                 .build()?;
 
             // Build System Tray Icon
             let _tray = TrayIconBuilder::new()
+                .tooltip("SonyBridge — WH-1000XM3 (85% • ANC On)")
                 .menu(&tray_menu)
                 .show_menu_on_left_click(false)
                 .on_menu_event(|app, event| match event.id.as_ref() {
@@ -192,6 +442,9 @@ fn main() {
                             let _ = window.show();
                             let _ = window.set_focus();
                         }
+                    }
+                    "enforce_a2dp" => {
+                        let _ = AudioEndpointSanitizer::enforce_stereo_a2dp();
                     }
                     "reconnect" => {
                         tracing::info!("Tray triggered reconnect");

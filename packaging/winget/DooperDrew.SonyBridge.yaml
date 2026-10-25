@@ -1,0 +1,22 @@
+﻿# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.6.0.schema.json
+PackageIdentifier: DooperDrew.SonyBridge
+PackageVersion: 0.2.0
+PackageLocale: en-US
+Publisher: DooperDrew
+PackageName: SonyBridge
+PackageUrl: https://github.com/DooperDrew/sonybridge
+License: MIT
+ShortDescription: Windows 10/11 system tray companion for Sony WH-1000XM3/XM4/XM5 headphones (Battery, ANC, 5-Band EQ, Clear Bass, A2DP routing).
+ManifestType: singleton
+ManifestVersion: 1.6.0
+Installers:
+  - Architecture: x64
+    InstallerType: zip
+    NestedInstallerType: portable
+    NestedInstallerFiles:
+      - RelativeFilePath: sonybridge-app.exe
+        PortableCommandAlias: sonybridge
+      - RelativeFilePath: sonybridge-cli.exe
+        PortableCommandAlias: sonybridge-cli
+    InstallerUrl: https://github.com/DooperDrew/sonybridge/releases/download/v0.2.0/SonyBridge-v0.2.0-windows-x64.zip
+    InstallerSha256: 10384ECDD32EE21BFD54D9C16D1C8773DD4A6F854B299598E1BEEBF178C02810

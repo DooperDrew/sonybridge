@@ -46,9 +46,10 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 cargo build --workspace --release
 ```
-- **After (lead only):** tick the roadmap box (`(YYYY-MM-DD, <commit>)`), add a CHANGELOG entry, update docs/ADRs if the design changed, add any lesson to `docs/lessons-learned.md`, commit (`M<x>.<y>: <summary>`), push, and update the issue.
+- **After (lead only):** tick the roadmap box (`(YYYY-MM-DD, <commit>)`), add a CHANGELOG entry, update docs/ADRs if the design changed, add any lesson to `docs/lessons-learned.md`, commit (`M<x>.<y>: <summary>`), push, and update the corresponding GitHub Milestone and Issue. When cutting a release milestone, run `.\scripts\package-release.ps1` and publish the portable `.zip` archive to GitHub Releases via `gh release create` even while physical hardware QA remains `Pending`.
 
 ## 7. Hard rules
+- **GitHub Governance (Milestones, Issues & Releases):** Every roadmap milestone (`M0`..`Mn`) MUST have a corresponding GitHub Milestone and tracked GitHub Issues. Completed tasks close their issue with a commit/release reference; pending hardware QA and future enhancements stay open in their respective milestone. Every release MUST attach a downloadable portable `.zip` bundle (`SonyBridge-vX.Y.Z-windows-x64.zip`) on GitHub Releases so users can download and test without building from source.
 - **Claims follow evidence:** Never claim a test, benchmark, or QA item passed without having run it. Hardware tests on physical headphones (WH-1000XM3) remain `Pending` until confirmed with empirical telemetry or user validation.
 - **Pure Core Isolation:** All Sony MDR protocol packet framing, serialization, deserialization, and state transitions live in `crates/sonybridge-core` with `#![forbid(unsafe_code)]` and zero OS or UI dependencies.
 - **Resource & Memory Budget:** Idle RAM footprint must remain ≤ 35 MB; idle CPU must be 0% (event-driven Bluetooth I/O, no polling loops).

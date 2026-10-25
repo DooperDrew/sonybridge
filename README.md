@@ -1,88 +1,101 @@
-# SonyBridge 🎧
+# 🎧 SonyBridge
 
 [![CI](https://github.com/DooperDrew/sonybridge/actions/workflows/ci.yml/badge.svg)](https://github.com/DooperDrew/sonybridge/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Rust](https://img.shields.io/badge/rust-1.99%2B-orange.svg)](https://www.rust-lang.org)
-[![Tauri v2](https://img.shields.io/badge/Tauri-v2-blue.svg)](https://tauri.app)
+[![Latest Release](https://img.shields.io/github/v/release/DooperDrew/sonybridge?label=Download%20ZIP&color=38bdf8)](https://github.com/DooperDrew/sonybridge/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A lightweight, responsive Windows 10/11 desktop companion and system tray application for Sony Bluetooth headphones (specifically the **WH-1000XM3**, **WH-1000XM4**, **WH-1000XM5**, and **WF** series).
-
-SonyBridge brings the full functionality of the mobile "Sony | Headphones Connect" app directly to the PC desktop with an ultra-lightweight native footprint (~22 MB idle RAM, 0% CPU).
+> **Lightweight, native Windows 10/11 system tray companion for Sony Bluetooth headphones (`WH-1000XM3`, `WH-1000XM4`, `WH-1000XM5`, and `WF` series).**
+> Solves Windows Bluetooth Hands-Free AG audio degradation and brings the full functionality of the mobile *Sony | Headphones Connect* app to the PC desktop: **real-time battery monitoring**, **Active Noise Canceling (ANC) & 20-step Ambient Sound**, **5-band hardware Equalizer & Clear Bass**, **1-click Sound Profiles**, and **smart Windows Stereo (A2DP) audio routing**.
 
 ---
 
-## ✨ Features
-
-- **🔋 Real-time Battery Monitoring in Taskbar Tray:** Always know your exact headphone battery percentage and charging state at a glance.
-- **🔇 Hardware Noise Canceling & Ambient Sound:** Toggle Noise Canceling, Off, or adjust Ambient Sound across 20 granular levels with optional "Focus on Voice".
-- **🎛️ 5-Band Hardware Equalizer & Clear Bass:** Tune sound profiles (-10 dB to +10 dB across 400Hz, 1kHz, 2.5kHz, 6.3kHz, 16kHz) and Clear Bass. Configurations persist directly into the headphone's onboard EEPROM memory.
-- **⚡ Anti-Hands-Free Audio Routing:** One-click enforcement of high-bitrate Stereo A2DP to prevent Windows from routing audio to degraded telephony profiles.
-- **🔒 Earcup Touch Sensor Lock & Auto-Power Off:** Toggle swipe gesture controls and set automatic idle shutdown timers.
-- **🪟 Windows Taskbar System Tray:** Left-click toggles the dashboard; closing the window hides to the tray so background monitoring stays active.
+| 🚀 [**Download Portable `.zip` (v0.2.0)**](https://github.com/DooperDrew/sonybridge/releases/download/v0.2.0/SonyBridge-v0.2.0-windows-x64.zip) | 📖 [**User Guide**](docs/user-guide.md) | 🗺️ [**Roadmap & Milestones**](https://github.com/DooperDrew/sonybridge/milestones) | 🐛 [**Issues & Hardware QA**](https://github.com/DooperDrew/sonybridge/issues) |
+| :--- | :--- | :--- | :--- |
 
 ---
 
-## 🚀 Quick Start
+## ✨ Key Features
 
-### Pre-compiled Binaries (in `target/release/`)
-- **Desktop Companion App:** `target/release/sonybridge-app.exe` (5.07 MB)
-- **Diagnostic Probe Utility:** `target/release/sonybridge-cli.exe` (1.45 MB)
+- **Real Sony MDR Protocol v1 & v2 over RFCOMM**: Communicates directly with your Sony WH-1000XM3 (`96cc203e-5068-46ad-b32d-396ceebe3928`) using authentic byte-stuffed (`0x3E`..`0x3C`, `0x3D` escape) `DATA_MDR` frames and verified checksums.
+- **Active Noise Canceling (ANC) & Ambient Sound**: Switch instantaneously between **ANC On (Dual Noise Sensor)**, **Wind Noise Reduction**, **20-level Ambient Sound** (`1..20`) with **Focus on Voice** passthrough, and **Off**.
+- **Hardware 5-Band Equalizer & Clear Bass**: Adjust hardware DSP frequencies (`400 Hz`, `1 kHz`, `2.5 kHz`, `6.3 kHz`, `16 kHz`) from `-10` to `+10` dB and **Clear Bass** (`-10..+10`) directly on the headset.
+- **1-Click Sound Profiles**: Switch between *Focus (Max ANC)*, *Office / Calls*, *Cinema / Bass Boost*, and *Studio Reference* with a single click.
+- **Smart Windows Audio Endpoint Sanitizer (`IPolicyConfig`)**: Detects and prevents Windows from routing music or system audio into the muffled 8 kHz mono `Hands-Free AG Audio` (HFP) profile, automatically enforcing high-res Stereo (`A2DP`) across Console, Multimedia, and Communications roles.
+- **Live Wire Frame Inspector**: Built-in hexadecimal protocol inspector lets you inspect every outgoing and incoming MDR packet in real time.
+- **Bilingual UI (`EN` / `IT`) & First-Run Onboarding Wizard**: Instant English/Italian localization and guided setup modal.
 
-### Running the Diagnostic Probe (CLI):
-Ensure your Sony headphones are paired in Windows Settings and run:
+---
+
+## 📦 Installation (No Build Required!)
+
+### Option 1 — Portable `.zip` with Interactive Setup Wizard (Recommended)
+1. Download **[`SonyBridge-v0.2.0-windows-x64.zip`](https://github.com/DooperDrew/sonybridge/releases/download/v0.2.0/SonyBridge-v0.2.0-windows-x64.zip)** from [GitHub Releases](https://github.com/DooperDrew/sonybridge/releases/latest).
+2. Extract the archive to any folder.
+3. Double-click **`setup.cmd`** to open the interactive Setup Wizard:
+   - **`[1]` Quick Launch (Portable)** — Starts `sonybridge-app.exe` immediately.
+   - **`[2]` Install to `%LOCALAPPDATA%\Programs\SonyBridge`** — Creates a Start Menu shortcut and optional Windows Startup registration (no administrator privileges required).
+   - **`[3]` Run Headless Diagnostic Probe** — Runs `sonybridge-cli.exe probe` to inspect paired Sony headphones, RFCOMM services, and Windows Core Audio endpoints.
+   - **`[4]` Uninstall** — Cleanly removes shortcuts and startup entries.
+
+### Option 2 — Direct PowerShell Installer
+From an extracted release folder:
 ```powershell
-.\target\release\sonybridge-cli.exe probe
+.\install.ps1 -RegisterStartup
 ```
 
-### Launching the Desktop App:
-```powershell
-.\target\release\sonybridge-app.exe
-```
+---
+
+## 🏗️ Workspace Architecture
+
+| Crate | Path | Responsibility |
+|---|---|---|
+| [`sonybridge-core`](crates/sonybridge-core) | `crates/sonybridge-core` | `#![forbid(unsafe_code)]` pure Rust Sony MDR v1/v2 wire protocol (`0x3D` byte stuffing, checksums, ANC `0x68`, EQ `0x58`, Battery `0x12`), state machine, sound profiles, and EN/IT i18n. |
+| [`sonybridge-windows`](crates/sonybridge-windows) | `crates/sonybridge-windows` | Windows WinRT RFCOMM `StreamSocket` transport, Core Audio `IMMDeviceEnumerator` + `IPolicyConfig` A2DP routing sanitizer, and `HKCU\...\Run` startup manager. |
+| [`sonybridge-cli`](crates/sonybridge-cli) | `crates/sonybridge-cli` | Headless diagnostic CLI (`sonybridge-cli probe` and `sonybridge-cli enforce-a2dp`). |
+| [`sonybridge-app`](crates/sonybridge-app) | `crates/sonybridge-app` | Tauri v2 Windows 10/11 system tray companion with 3-tab glassmorphic flyout UI, onboarding wizard, and live wire inspector. |
 
 ---
 
-## 🏗️ Architecture
+## ⚡ Resource & Performance Budgets
 
-Structured as a Cargo workspace with pure logic isolation:
-- `crates/sonybridge-core`: Pure Sony MDR (Music Device Remote) protocol framing, 8-bit checksum calculation, command codecs, and connection state machine (`#![forbid(unsafe_code)]`, zero OS dependencies).
-- `crates/sonybridge-windows`: Windows Bluetooth discovery (WinRT) and Windows Core Audio COM endpoint enumeration (`IMMDeviceEnumerator`).
-- `crates/sonybridge-cli`: Headless CLI diagnostic tool for probing and testing.
-- `crates/sonybridge-app`: Tauri v2 desktop application with system tray and web UI.
+| Metric | Target Budget | Design Guarantee |
+|---|---|---|
+| **Idle RAM Footprint** | `<= 35 MB` | Native Rust + shared Windows 10/11 Edge WebView2 runtime |
+| **Idle CPU Usage** | `0.0%` | Event-driven RFCOMM I/O & UI state transitions (zero background polling loops) |
+| **Binary Size** | `< 10 MB` | LTO-optimized release binary (`~3.8 MB` for `sonybridge-app.exe`) |
 
 ---
 
-## 🧪 Development & Verification Gate
+## 🛠️ Building from Source
 
 ```powershell
-# Check formatting
+# Run full verification gate
 cargo fmt --all -- --check
-
-# Clippy lints (warnings as errors)
 cargo clippy --workspace --all-targets -- -D warnings
-
-# Unit & invariant test suite
 cargo test --workspace
 
-# Production release build
+# Build release executables
 cargo build --workspace --release
+
+# Package portable release archive + generate Scoop/WinGet manifests
+.\scripts\package-release.ps1 -Version "0.2.0" -SkipBuild
+.\scripts\generate-manifests.ps1 -Version "0.2.0"
 ```
 
 ---
 
-## 📖 Documentation
+## 📚 Documentation Index
 
-- [User Guide & Hardware Testing Manual](docs/user-guide.md)
-- [01 — Vision](docs/01-vision.md)
-- [02 — Requirements](docs/02-requirements.md)
-- [03 — Architecture](docs/03-architecture.md)
-- [04 — UX & Controls](docs/04-ux.md)
-- [05 — Roadmap](docs/05-roadmap.md)
-- [06 — QA & Validation Matrix](docs/06-qa-and-validation.md)
-- [M0 Spike Findings](docs/m0-spike-findings.md)
-- [ADR 0001: Rust Core + Tauri v2 Stack](docs/decisions/0001-rust-tauri-stack.md)
-
----
-
-## 📄 License
-
-MIT License. See [LICENSE](LICENSE) for details.
+- [01 — Vision & Problem Statement](docs/01-vision.md)
+- [02 — Requirements & Budgets](docs/02-requirements.md)
+- [03 — System Architecture](docs/03-architecture.md)
+- [04 — UX & System Tray Specification](docs/04-ux.md)
+- [05 — Roadmap & Milestones](docs/05-roadmap.md)
+- [06 — QA & Hardware Validation Matrix](docs/06-qa-and-validation.md)
+- [07 — UX Enhancements & v0.2.0 Evolution](docs/07-ux-and-improvements.md)
+- [08 — Packaging & Distribution Strategy](docs/08-community-and-growth-strategy.md)
+- [Multi-Agent Engineering Methodology](docs/multi-agent-methodology.md)
+- [M0 Protocol & Core Audio Spike Findings](docs/m0-spike-findings.md)
+- [User Guide](docs/user-guide.md)
+- [Lessons Learned](docs/lessons-learned.md)
+- [Changelog](CHANGELOG.md)

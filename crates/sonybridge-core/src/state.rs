@@ -16,6 +16,8 @@ pub enum ConnectionStatus {
 pub struct HeadphoneState {
     pub status: ConnectionStatus,
     pub model: Option<HeadphoneModel>,
+    pub device_name: Option<String>,
+    pub mac_address: Option<String>,
     pub battery: BatteryInfo,
     pub anc: AncMode,
     pub equalizer: EqualizerState,
@@ -27,6 +29,8 @@ impl Default for HeadphoneState {
         Self {
             status: ConnectionStatus::Disconnected,
             model: None,
+            device_name: None,
+            mac_address: None,
             battery: BatteryInfo::default(),
             anc: AncMode::default(),
             equalizer: EqualizerState::default(),
@@ -62,12 +66,15 @@ impl StateMachine {
 
         let cmd = frame.payload[0];
         match cmd {
-            opcodes::CMD_BATTERY => {
+            opcodes::CMD_BATTERY | opcodes::V1_BATTERY_RET | opcodes::V1_BATTERY_NOTIFY => {
                 if let Ok(battery) = commands::parse_battery_response(&frame.payload) {
                     self.state.battery = battery;
                 }
             }
-            opcodes::CMD_NOISE_CANCELING => {
+            opcodes::CMD_NOISE_CANCELING
+            | opcodes::V1_NCASM_RET
+            | opcodes::V1_NCASM_SET
+            | opcodes::V1_NCASM_NOTIFY => {
                 if let Ok(anc) = commands::parse_anc_response(&frame.payload) {
                     self.state.anc = anc;
                 }
@@ -79,7 +86,7 @@ impl StateMachine {
         Ok(())
     }
 
-    /// Create an outgoing MDR frame for setting ANC mode.
+    /// Create an outgoing MDR frame for setting ANC mode (canonical).
     pub fn set_anc(&mut self, mode: AncMode) -> MdrFrame {
         self.state.anc = mode.clone();
         let payload = commands::build_anc_set(&mode);
@@ -87,10 +94,26 @@ impl StateMachine {
         MdrFrame::new(seq, payload)
     }
 
-    /// Create an outgoing MDR frame for setting Equalizer state.
+    /// Create an outgoing WH-1000XM3 MDR v1 hardware frame for setting ANC/ASM mode.
+    pub fn set_v1_anc(&mut self, mode: AncMode) -> MdrFrame {
+        self.state.anc = mode.clone();
+        let payload = commands::build_v1_ncasm_set(&mode);
+        let seq = self.next_seq();
+        MdrFrame::new(seq, payload)
+    }
+
+    /// Create an outgoing MDR frame for setting Equalizer state (canonical).
     pub fn set_equalizer(&mut self, eq: EqualizerState) -> MdrFrame {
         self.state.equalizer = eq.clone();
         let payload = commands::build_equalizer_set(&eq);
+        let seq = self.next_seq();
+        MdrFrame::new(seq, payload)
+    }
+
+    /// Create an outgoing WH-1000XM3 MDR v1 hardware frame for setting Equalizer state.
+    pub fn set_v1_equalizer(&mut self, eq: EqualizerState) -> MdrFrame {
+        self.state.equalizer = eq.clone();
+        let payload = commands::build_v1_equalizer_set(&eq);
         let seq = self.next_seq();
         MdrFrame::new(seq, payload)
     }

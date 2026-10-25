@@ -1,0 +1,30 @@
+﻿{
+    "version": "0.2.0",
+    "description": "Lightweight Windows 10/11 system tray companion for Sony Bluetooth headphones (WH-1000XM3/XM4/XM5): real-time battery, ANC/Ambient Sound, 5-band Equalizer & Clear Bass, and smart A2DP audio routing.",
+    "homepage": "https://github.com/DooperDrew/sonybridge",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/DooperDrew/sonybridge/releases/download/v0.2.0/SonyBridge-v0.2.0-windows-x64.zip",
+            "hash": "10384ecdd32ee21bfd54d9c16d1c8773dd4a6f854b299598e1beebf178c02810"
+        }
+    },
+    "bin": [
+        "sonybridge-app.exe",
+        "sonybridge-cli.exe"
+    ],
+    "shortcuts": [
+        [
+            "sonybridge-app.exe",
+            "SonyBridge"
+        ]
+    ],
+    "checkver": "github",
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/DooperDrew/sonybridge/releases/download/v$version/SonyBridge-v$version-windows-x64.zip"
+            }
+        }
+    }
+}

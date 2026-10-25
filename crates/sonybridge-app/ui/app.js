@@ -1,8 +1,56 @@
-// SonyBridge UI Logic
+// SonyBridge v0.2.0 UI Controller
 
 const invoke = window.__TAURI__ ? window.__TAURI__.core.invoke : async (cmd, args) => {
   console.log(`[Mock Tauri Invoke] ${cmd}`, args);
-  return { status: "ok" };
+  return {
+    status: "ok",
+    wire_hex: "3E 0C 01 00 00 00 08 68 02 01 01 02 01 00 00 8C 3C"
+  };
+};
+
+const I18N = {
+  en: {
+    subtitle: "WH-1000XM3 / XM4 / XM5 Desktop Companion",
+    tab_dashboard: "Dashboard & EQ",
+    tab_audio: "Windows & Power",
+    tab_architecture: "Architecture & Wire",
+    status_connected: "Connected",
+    btn_reconnect: "Reconnect",
+    quick_profiles: "Quick Sound Profiles:",
+    telemetry_title: "Device Telemetry",
+    anc_title: "Noise Canceling & Ambient Sound",
+    mode_nc: "Noise Canceling",
+    mode_wind: "Wind Reduction",
+    mode_ambient: "Ambient Sound",
+    mode_off: "Off",
+    ambient_level: "Ambient Sound Level",
+    voice_focus: "Focus on Voice (attenuate background drone)",
+    eq_title: "Hardware Equalizer",
+    clear_bass: "Clear Bass (DSP Sub-Bass)",
+    enforce_a2dp: "Enforce A2DP",
+    autostart_label: "Launch SonyBridge on Windows Login"
+  },
+  it: {
+    subtitle: "Assistente Desktop WH-1000XM3 / XM4 / XM5",
+    tab_dashboard: "Pannello & EQ",
+    tab_audio: "Windows & Energia",
+    tab_architecture: "Architettura & Pacchetti",
+    status_connected: "Connesso",
+    btn_reconnect: "Riconnetti",
+    quick_profiles: "Profili Audio Rapidi:",
+    telemetry_title: "Telemetria Dispositivo",
+    anc_title: "Eliminazione Rumore & Suono Ambiente",
+    mode_nc: "Eliminazione Rumore",
+    mode_wind: "Riduzione Vento",
+    mode_ambient: "Suono Ambiente",
+    mode_off: "Disattivato",
+    ambient_level: "Livello Suono Ambiente",
+    voice_focus: "Risalta Voce (attenua ronzio di fondo)",
+    eq_title: "Equalizzatore Hardware",
+    clear_bass: "Clear Bass (Sub-Bassi DSP)",
+    enforce_a2dp: "Forza Stereo A2DP",
+    autostart_label: "Avvia SonyBridge all'accesso di Windows"
+  }
 };
 
 // Preset frequency maps
@@ -30,7 +78,69 @@ function debounce(func, delay = 75) {
   };
 }
 
+function updateWireConsole(res) {
+  if (res && res.wire_hex) {
+    const el = document.getElementById("wire-console");
+    if (el) el.textContent = res.wire_hex;
+    const fine = document.getElementById("status-fine");
+    if (fine) fine.textContent = `Last TX: ${res.wire_hex.slice(0, 35)}...`;
+  }
+}
+
+function applyLanguage(lang) {
+  const dict = I18N[lang] || I18N.en;
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (dict[key]) {
+      el.textContent = dict[key];
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  // Navigation Tabs
+  const navTabs = document.querySelectorAll(".nav-tab");
+  const tabPanels = document.querySelectorAll(".tab-panel");
+  navTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      navTabs.forEach(t => t.classList.remove("active"));
+      tabPanels.forEach(p => p.classList.remove("active"));
+      tab.classList.add("active");
+      const target = document.getElementById(tab.dataset.tab);
+      if (target) target.classList.add("active");
+    });
+  });
+
+  // Language Selector
+  const langSelect = document.getElementById("lang-select");
+  langSelect.addEventListener("change", (e) => {
+    const lang = e.target.value;
+    applyLanguage(lang);
+    invoke("set_language", { lang }).catch(console.error);
+  });
+
+  // Onboarding Modal
+  const onboardingModal = document.getElementById("onboarding-modal");
+  document.getElementById("btn-open-wizard").addEventListener("click", () => {
+    onboardingModal.style.display = "flex";
+  });
+  document.getElementById("btn-finish-onboarding").addEventListener("click", () => {
+    onboardingModal.style.display = "none";
+    invoke("complete_onboarding").catch(console.error);
+    document.getElementById("btn-reconnect").click();
+  });
+
+  // Load saved AppConfig on startup
+  invoke("get_app_config").then(cfg => {
+    if (cfg && cfg.language) {
+      langSelect.value = cfg.language;
+      applyLanguage(cfg.language);
+    }
+    if (cfg && cfg.onboarding_completed === false) {
+      onboardingModal.style.display = "flex";
+    }
+  }).catch(() => {});
+
   // ANC Mode Buttons
   const modeButtons = document.querySelectorAll(".seg-btn");
   const ambientGroup = document.getElementById("ambient-slider-group");
@@ -38,25 +148,34 @@ document.addEventListener("DOMContentLoaded", () => {
   const ambientVal = document.getElementById("ambient-level-val");
   const voiceFocusCheck = document.getElementById("voice-focus-check");
 
+  function setUiAncMode(mode, level, voiceFocus) {
+    currentAncMode = mode;
+    modeButtons.forEach(b => {
+      b.classList.toggle("active", b.dataset.mode === mode);
+    });
+    if (mode === "AmbientSound") {
+      ambientGroup.style.opacity = "1";
+      ambientGroup.style.pointerEvents = "auto";
+      if (level) {
+        ambientSlider.value = level;
+        ambientVal.textContent = `Level ${level}`;
+      }
+      if (typeof voiceFocus === "boolean") {
+        voiceFocusCheck.checked = voiceFocus;
+      }
+    } else {
+      ambientGroup.style.opacity = "0.4";
+      ambientGroup.style.pointerEvents = "none";
+    }
+  }
+
   modeButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      modeButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentAncMode = btn.dataset.mode;
-
-      if (currentAncMode === "AmbientSound") {
-        ambientGroup.style.opacity = "1";
-        ambientGroup.style.pointerEvents = "auto";
-      } else {
-        ambientGroup.style.opacity = "0.4";
-        ambientGroup.style.pointerEvents = "none";
-      }
-
+      setUiAncMode(btn.dataset.mode);
       sendAncUpdate();
     });
   });
 
-  // Ambient Sound Slider
   ambientSlider.addEventListener("input", (e) => {
     const val = e.target.value;
     ambientVal.textContent = `Level ${val}`;
@@ -75,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
       level: parseInt(ambientSlider.value, 10),
       focusOnVoice: voiceFocusCheck.checked
     };
-    invoke("set_anc_mode", payload).catch(console.error);
+    invoke("set_anc_mode", { payload }).then(updateWireConsole).catch(console.error);
   }
 
   // Equalizer Controls
@@ -99,16 +218,21 @@ document.addEventListener("DOMContentLoaded", () => {
     clearBassVal.textContent = bass > 0 ? `+${bass}` : `${bass}`;
   }
 
-  presetSelect.addEventListener("change", (e) => {
-    const preset = PRESETS[e.target.value];
+  function applyUiPreset(presetName) {
+    presetSelect.value = presetName;
+    const preset = PRESETS[presetName];
     if (preset) {
       preset.bands.forEach((val, idx) => {
         eqBands[idx].slider.value = val;
       });
       clearBassSlider.value = preset.bass;
       updateEqLabels();
-      sendEqUpdate();
     }
+  }
+
+  presetSelect.addEventListener("change", (e) => {
+    applyUiPreset(e.target.value);
+    sendEqUpdate();
   });
 
   eqBands.forEach(b => {
@@ -131,39 +255,75 @@ document.addEventListener("DOMContentLoaded", () => {
       bands: eqBands.map(b => parseInt(b.slider.value, 10)),
       clearBass: parseInt(clearBassSlider.value, 10)
     };
-    invoke("set_equalizer", payload).catch(console.error);
+    invoke("set_equalizer", { payload }).then(updateWireConsole).catch(console.error);
   }
+
+  // Quick Sound Profile Chips
+  const profileChips = document.querySelectorAll(".profile-chip");
+  profileChips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      profileChips.forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      const profileName = chip.dataset.profile;
+
+      if (profileName.startsWith("Focus")) {
+        setUiAncMode("NoiseCanceling");
+        applyUiPreset("Excited");
+      } else if (profileName.startsWith("Office")) {
+        setUiAncMode("AmbientSound", 12, true);
+        applyUiPreset("Vocal");
+      } else if (profileName.startsWith("Cinema")) {
+        setUiAncMode("NoiseCanceling");
+        applyUiPreset("BassBoost");
+      } else {
+        setUiAncMode("Off");
+        applyUiPreset("Off");
+      }
+
+      invoke("apply_sound_profile", { profileName }).then(updateWireConsole).catch(console.error);
+    });
+  });
 
   // Reconnect & Audio Enforce Buttons
   document.getElementById("btn-reconnect").addEventListener("click", () => {
     const pillText = document.getElementById("connection-text");
-    pillText.textContent = "Reconnecting...";
-    invoke("trigger_reconnect").then(() => {
-      pillText.textContent = "Connected";
+    pillText.textContent = "Scanning...";
+    invoke("trigger_reconnect").then((res) => {
+      updateWireConsole(res);
+      pillText.textContent = res && res.status === "ok" ? "Connected" : "Ready (Standby)";
+      if (res && res.message) {
+        document.getElementById("battery-status").textContent = res.message;
+      }
     }).catch(err => {
       console.error(err);
-      pillText.textContent = "Disconnected";
+      pillText.textContent = "Standby";
     });
   });
 
   document.getElementById("btn-fix-audio").addEventListener("click", () => {
     const btn = document.getElementById("btn-fix-audio");
     btn.textContent = "Routing...";
-    invoke("enforce_a2dp").then(() => {
-      btn.textContent = "Enforced A2DP";
+    invoke("enforce_a2dp").then((res) => {
+      btn.textContent = "Enforced A2DP ✓";
+      if (res && res.message) {
+        document.getElementById("status-fine").textContent = res.message;
+      }
       setTimeout(() => { btn.textContent = "Enforce A2DP"; }, 2000);
     }).catch(console.error);
   });
 
   // Settings Toggles
+  document.getElementById("autostart-toggle").addEventListener("change", (e) => {
+    invoke("set_autostart", { enabled: e.target.checked }).catch(console.error);
+  });
+
   document.getElementById("touch-sensor-toggle").addEventListener("change", (e) => {
-    invoke("set_touch_sensor", { enabled: e.target.checked }).catch(console.error);
+    invoke("set_touch_sensor", { enabled: e.target.checked }).then(updateWireConsole).catch(console.error);
   });
 
   document.getElementById("auto-off-select").addEventListener("change", (e) => {
-    invoke("set_auto_off", { minutes: parseInt(e.target.value, 10) }).catch(console.error);
+    invoke("set_auto_off", { minutes: parseInt(e.target.value, 10) }).then(updateWireConsole).catch(console.error);
   });
 
-  // Initialize labels
   updateEqLabels();
 });

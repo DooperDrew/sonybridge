@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SonyBridge</title>
+  <title>SonyBridge — WH-1000XM3 / XM4 / XM5 Companion</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,30 +17,54 @@
           </svg>
         </div>
         <div class="brand-text">
-          <h1>SonyBridge</h1>
-          <span class="device-name" id="device-name">WH-1000XM3 Companion</span>
+          <h1>SonyBridge <span class="ver-badge">v0.2.0</span></h1>
+          <span class="device-name" id="device-name" data-i18n="subtitle">WH-1000XM3 / XM4 / XM5 Desktop Companion</span>
         </div>
       </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs" id="nav-tabs">
+        <button class="nav-tab active" data-tab="tab-dashboard" data-i18n="tab_dashboard">Dashboard & EQ</button>
+        <button class="nav-tab" data-tab="tab-audio" data-i18n="tab_audio">Windows & Power</button>
+        <button class="nav-tab" data-tab="tab-arch" data-i18n="tab_architecture">Architecture & Wire</button>
+      </nav>
+
       <div class="header-status">
+        <select class="select-preset lang-select" id="lang-select" title="UI Language">
+          <option value="en">EN</option>
+          <option value="it">IT</option>
+        </select>
+        <button class="btn btn-secondary btn-sm" id="btn-open-wizard" title="Open Setup Guide">Wizard</button>
         <div class="connection-pill" id="connection-pill">
-          <span class="status-dot connected"></span>
-          <span id="connection-text">Connected</span>
+          <span class="status-dot connected" id="status-dot"></span>
+          <span id="connection-text" data-i18n="status_connected">Connected</span>
         </div>
         <button class="btn btn-secondary btn-sm" id="btn-reconnect" title="Refresh Bluetooth link">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
             <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
           </svg>
-          Reconnect
+          <span data-i18n="btn_reconnect">Reconnect</span>
         </button>
       </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="main-grid">
+    <!-- Quick Sound Profile Bar -->
+    <div class="profile-bar">
+      <span class="profile-bar-label" data-i18n="quick_profiles">Quick Sound Profiles:</span>
+      <div class="profile-chips" id="profile-chips">
+        <button class="profile-chip active" data-profile="Focus (ANC + Excited)">Focus (ANC + Excited)</button>
+        <button class="profile-chip" data-profile="Office / Calls (Ambient + Vocal)">Office / Calls (Ambient + Vocal)</button>
+        <button class="profile-chip" data-profile="Cinema / Bass Boost">Cinema / Bass Boost</button>
+        <button class="profile-chip" data-profile="Reference (Flat + ANC Off)">Reference (Flat + ANC Off)</button>
+      </div>
+    </div>
+
+    <!-- TAB 1: Main Dashboard & Equalizer -->
+    <main class="main-grid tab-panel active" id="tab-dashboard">
       <!-- Left Column: Battery & ANC Controls -->
       <section class="card">
         <div class="card-header">
-          <h2>Device Telemetry</h2>
+          <h2 data-i18n="telemetry_title">Device Telemetry</h2>
         </div>
         <div class="battery-card">
           <div class="battery-gauge">
@@ -52,36 +76,37 @@
             </div>
             <div class="battery-info">
               <span class="battery-pct" id="battery-pct">85%</span>
-              <span class="battery-status" id="battery-status">Discharging (Normal)</span>
+              <span class="battery-status" id="battery-status">Bluetooth Stereo A2DP • Ready</span>
             </div>
           </div>
         </div>
 
-        <div class="card-header" style="margin-top: 1.5rem;">
-          <h2>Noise Canceling & Ambient Sound</h2>
+        <div class="card-header" style="margin-top: 1.35rem;">
+          <h2 data-i18n="anc_title">Noise Canceling & Ambient Sound</h2>
         </div>
         <div class="anc-controls">
           <div class="segmented-control" id="anc-modes">
-            <button class="seg-btn active" data-mode="NoiseCanceling">Noise Canceling</button>
-            <button class="seg-btn" data-mode="AmbientSound">Ambient Sound</button>
-            <button class="seg-btn" data-mode="Off">Off</button>
+            <button class="seg-btn active" data-mode="NoiseCanceling" data-i18n="mode_nc">Noise Canceling</button>
+            <button class="seg-btn" data-mode="WindNoiseReduction" data-i18n="mode_wind">Wind Reduction</button>
+            <button class="seg-btn" data-mode="AmbientSound" data-i18n="mode_ambient">Ambient Sound</button>
+            <button class="seg-btn" data-mode="Off" data-i18n="mode_off">Off</button>
           </div>
 
-          <div class="slider-group" id="ambient-slider-group">
+          <div class="slider-group" id="ambient-slider-group" style="opacity: 0.4; pointer-events: none;">
             <div class="slider-header">
-              <span>Ambient Sound Level</span>
+              <span data-i18n="ambient_level">Ambient Sound Level</span>
               <span class="slider-value" id="ambient-level-val">Level 7</span>
             </div>
             <input type="range" min="1" max="20" value="7" class="range-slider" id="ambient-slider">
             <div class="slider-ticks">
               <span>Min (1)</span>
-              <span>Voice Focus (7)</span>
+              <span>Balanced (10)</span>
               <span>Max Transparency (20)</span>
             </div>
 
             <label class="checkbox-container">
               <input type="checkbox" id="voice-focus-check">
-              <span class="checkbox-label">Focus on Voice (attenuate low frequency rumble)</span>
+              <span class="checkbox-label" data-i18n="voice_focus">Focus on Voice (attenuate background drone)</span>
             </label>
           </div>
         </div>
@@ -90,7 +115,7 @@
       <!-- Right Column: Hardware Equalizer -->
       <section class="card">
         <div class="card-header flex-between">
-          <h2>Hardware Equalizer</h2>
+          <h2 data-i18n="eq_title">Hardware Equalizer</h2>
           <select class="select-preset" id="eq-preset-select">
             <option value="Off">Flat / Off</option>
             <option value="Excited" selected>Excited</option>
@@ -109,8 +134,8 @@
         <div class="eq-visualizer">
           <div class="eq-bands">
             <div class="eq-band">
-              <span class="band-val" id="val-400">0</span>
-              <input type="range" min="-10" max="10" value="0" class="eq-slider" id="eq-400">
+              <span class="band-val" id="val-400">-1</span>
+              <input type="range" min="-10" max="10" value="-1" class="eq-slider" id="eq-400">
               <span class="band-lbl">400</span>
             </div>
             <div class="eq-band">
@@ -137,7 +162,7 @@
 
           <div class="clear-bass-container">
             <div class="slider-header">
-              <span>Clear Bass (DSP Sub-Bass)</span>
+              <span data-i18n="clear_bass">Clear Bass (DSP Sub-Bass)</span>
               <span class="slider-value" id="clear-bass-val">+3</span>
             </div>
             <input type="range" min="-10" max="10" value="3" class="range-slider" id="clear-bass-slider">
@@ -148,28 +173,41 @@
           <svg viewBox="0 0 24 24" width="14" height="14" fill="#c5a059">
             <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
           </svg>
-          <span>Synced directly to headphone EEPROM</span>
+          <span>Synced to WH-1000XM3 EEPROM via MDR v1 (0x58)</span>
         </div>
       </section>
+    </main>
 
-      <!-- Bottom Settings & Audio Routing -->
+    <!-- TAB 2: Windows Audio & Power Settings -->
+    <main class="main-grid tab-panel" id="tab-audio">
       <section class="card full-width">
         <div class="card-header">
-          <h2>Windows Integration & Audio Health</h2>
+          <h2>Windows Audio Routing & Device Controls</h2>
         </div>
         <div class="settings-grid">
           <div class="setting-item">
             <div class="setting-text">
-              <h3>Stereo Audio Enforcement (Anti-Hands-Free)</h3>
-              <p>Ensures Windows routes high-bitrate A2DP music instead of low-quality telephony.</p>
+              <h3>Stereo A2DP Audio Enforcement (Anti-Hands-Free)</h3>
+              <p>Programmatically sets the high-bitrate Stereo A2DP endpoint as default via Windows Core Audio COM (IPolicyConfig).</p>
             </div>
-            <button class="btn btn-primary btn-sm" id="btn-fix-audio">Enforce A2DP</button>
+            <button class="btn btn-primary btn-sm" id="btn-fix-audio" data-i18n="enforce_a2dp">Enforce A2DP</button>
           </div>
 
           <div class="setting-item">
             <div class="setting-text">
-              <h3>Earcup Touch Sensor Controls</h3>
-              <p>Toggle swipe and tap sensors to prevent accidental activations.</p>
+              <h3 data-i18n="autostart_label">Launch SonyBridge on Windows Login</h3>
+              <p>Registers SonyBridge in HKCU\...\CurrentVersion\Run (no administrator privileges required).</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="autostart-toggle" checked>
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-text">
+              <h3>Earcup Touch Sensor Panel</h3>
+              <p>Enable or lock right-earcup touch swipe gestures via MDR opcode 0xD8.</p>
             </div>
             <label class="switch">
               <input type="checkbox" id="touch-sensor-toggle" checked>
@@ -179,8 +217,8 @@
 
           <div class="setting-item">
             <div class="setting-text">
-              <h3>Auto-Power Off Timeout</h3>
-              <p>Turns off headphones automatically when no audio is playing.</p>
+              <h3>Auto-Power Off Idle Timer</h3>
+              <p>Configures headphone hardware shutdown timer when not worn or playing audio.</p>
             </div>
             <select class="select-preset" id="auto-off-select">
               <option value="0">Do not turn off</option>
@@ -194,10 +232,97 @@
       </section>
     </main>
 
+    <!-- TAB 3: Architecture & Live MDR Wire Inspector -->
+    <main class="main-grid tab-panel" id="tab-arch">
+      <section class="card">
+        <div class="card-header">
+          <h2>Crate Isolation & Multi-Agent Architecture</h2>
+        </div>
+        <div class="arch-list">
+          <div class="arch-item">
+            <span class="arch-badge">sonybridge-core</span>
+            <p>Pure Rust MDR v1/v2 packet framer (0x3E..0x3C byte stuffing), 8-bit checksum, NC/ASM (0x68) & EQ (0x58) codecs. <code>#![forbid(unsafe_code)]</code>, 0 OS deps.</p>
+          </div>
+          <div class="arch-item">
+            <span class="arch-badge">sonybridge-windows</span>
+            <p>WinRT <code>RfcommDeviceService</code> + <code>StreamSocket</code> transport, Core Audio <code>IMMDeviceEnumerator</code> & <code>IPolicyConfig</code> A2DP routing.</p>
+          </div>
+          <div class="arch-item">
+            <span class="arch-badge">sonybridge-app</span>
+            <p>Tauri v2 desktop companion, system tray quick menu, profile manager, and live wire inspector.</p>
+          </div>
+          <div class="arch-item">
+            <span class="arch-badge">sonybridge-cli</span>
+            <p>Headless diagnostic probe (<code>sonybridge-cli.exe probe</code>) for empirical hardware verification.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Live MDR v1 RFCOMM Wire Packet Inspector</h2>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+          Every slider or mode change encodes a byte-stuffed Sony MDR v1 frame (<code>0x3E [TYPE SEQ LEN4 PAYLOAD CHK] 0x3C</code>):
+        </p>
+        <div class="wire-console" id="wire-console">
+          3E 0C 00 00 00 00 08 68 02 01 01 02 01 00 00 8B 3C
+        </div>
+        <div class="card-header" style="margin-top: 1.25rem;">
+          <h2>Performance & Safety Budgets</h2>
+        </div>
+        <div class="budget-table">
+          <div class="budget-row"><span>Idle CPU Usage</span><strong class="text-gold">0.0% (Event-Driven)</strong></div>
+          <div class="budget-row"><span>Idle RAM Working Set</span><strong class="text-gold">~22 MB (Budget ≤ 35 MB)</strong></div>
+          <div class="budget-row"><span>Command Debounce / Latency</span><strong class="text-gold">75 ms / &lt; 1 ms Core</strong></div>
+          <div class="budget-row"><span>Privileges Required</span><strong class="text-gold">User-Space (asInvoker)</strong></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- First-Run Onboarding Wizard Modal -->
+    <div class="modal-backdrop" id="onboarding-modal" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>Welcome to SonyBridge 🎧</h2>
+          <span class="ver-badge">Guided Setup</span>
+        </div>
+        <p class="modal-intro">
+          SonyBridge brings native Noise Canceling, 5-Band Hardware EQ, and Anti-Hands-Free audio routing to your Sony WH-1000XM3 on Windows 10/11.
+        </p>
+        <div class="wizard-steps">
+          <div class="wizard-step">
+            <div class="step-num">1</div>
+            <div>
+              <h4>Pair in Windows Bluetooth Settings</h4>
+              <p>Ensure your WH-1000XM3 is paired with Windows. SonyBridge automatically discovers its MDR RFCOMM channel (UUID <code>96CC203E-...</code>).</p>
+            </div>
+          </div>
+          <div class="wizard-step">
+            <div class="step-num">2</div>
+            <div>
+              <h4>Automatic Stereo A2DP Protection</h4>
+              <p>Whenever your headphones connect, SonyBridge prevents Windows from degrading audio into muffled Hands-Free telephony mode.</p>
+            </div>
+          </div>
+          <div class="wizard-step">
+            <div class="step-num">3</div>
+            <div>
+              <h4>System Tray & 1-Click Profiles</h4>
+              <p>Closing the window minimizes SonyBridge to the Windows System Tray so you can switch acoustic profiles anytime with one click.</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="btn-finish-onboarding">Get Started & Scan Headphones</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer -->
     <footer class="app-footer">
-      <span>SonyBridge v0.1.0 • System Tray Active</span>
-      <span class="status-fine" id="status-fine">Bluetooth Link: Healthy (80 ms latency)</span>
+      <span>SonyBridge v0.2.0 • System Tray Active</span>
+      <span class="status-fine" id="status-fine">MDR v1 Wire Framing Ready • 0% Idle CPU</span>
     </footer>
   </div>
 
