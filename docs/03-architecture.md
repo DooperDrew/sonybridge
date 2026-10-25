@@ -1,16 +1,17 @@
 # 03 — Architecture
 
-> Status: **APPROVED**. 🔬 = must be confirmed by a Milestone 0 spike.
+> Status: **APPROVED & IMPLEMENTED (`v0.2.0`)**.
 
-## Tech stack (see `decisions/0001-rust-tauri-stack.md`)
+## Tech Stack (see [`decisions/0001-rust-tauri-stack.md`](decisions/0001-rust-tauri-stack.md))
 | Concern | Choice | Rationale |
 |---|---|---|
-| Language / runtime | Rust (stable 2021) | Memory safety, native C/Win32 interop, zero-runtime overhead, predictable memory. |
-| Desktop App & Tray | Tauri v2 | Native Windows WebView2 embedding, native OS tray menu, tiny footprint (~10-20 MB vs Electron's 150+ MB). |
-| Windows Bluetooth API | `windows-rs` / WinRT (`Windows.Devices.Bluetooth.Rfcomm`) + Winsock fallback 🔬 | Official Microsoft Windows SDK bindings for Rust; provides RFCOMM socket streaming. |
-| Audio Endpoint Control | Windows Core Audio COM API (`IMMDeviceEnumerator`, `IPolicyConfig`) 🔬 | Native Windows API for enumerating audio render endpoints and switching default devices. |
-| UI Framework | Svelte or Vanilla TypeScript + Tailwind CSS | Ultra-lightweight reactive UI with zero heavy bundles, instant rendering. |
-| Build & CI | Cargo workspace + GitHub Actions (`windows-latest`) | Fast compilation, unified workspace dependencies, automated CI gate. |
+| Language / runtime | Rust (stable 2021) | Memory safety, native Win32/WinRT interop, zero runtime overhead, predictable memory. |
+| Desktop App & Tray | Tauri v2 (`tray-icon`) | Native Windows WebView2 embedding, native OS system tray menu, low memory footprint (`~22 MB` vs Electron's `150+ MB`). |
+| Windows Bluetooth API | `windows` crate `v0.58` (`Windows::Devices::Bluetooth::Rfcomm` + `StreamSocket`) | Official Microsoft WinRT bindings for Rust; connects directly to Sony MDR v1 (`96cc203e-5068-46ad-b32d-396ceebe3928`) and MDR v2 (`956c7b26-d49a-4ba8-b03f-b17d393cb6e2`). |
+| Audio Endpoint Control | Windows Core Audio COM API (`IMMDeviceEnumerator`, `IPolicyConfig`) | Native user-mode COM interface for enumerating audio render endpoints and enforcing Stereo (`A2DP`) across Console, Multimedia, and Communications roles. |
+| Startup Integration | Windows Registry (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`) | Per-user logon autostart without requiring UAC Administrator elevation. |
+| UI Frontend | Vanilla HTML5 / CSS3 / ES6 JS (3-Tab Glassmorphic Flyout) | Zero heavy bundler overhead, instant rendering, live hexadecimal wire inspector, and bilingual EN/IT dictionary support. |
+| Build, Packaging & CI | Cargo workspace + PowerShell packaging (`package-release.ps1`, `setup-wizard.ps1`, `generate-manifests.ps1`) + GitHub Actions (`ci.yml`, `release.yml`) | Deterministic builds, zero-elevation WinForms setup wizard, and automated WinGet/Scoop manifest generation. |
 
 ---
 
@@ -18,123 +19,104 @@
 
 ```mermaid
 flowchart TD
-    subgraph UI ["Frontend (Tauri WebView2)"]
-        A["Dashboard / Control Center"]
-        B["Tray Menu & Quick Toggles"]
-        C["Toast Notifications"]
+    subgraph UI ["Frontend (crates/sonybridge-app/ui)"]
+        A["Tab 1: Dashboard, Sound Profiles & 5-Band EQ"]
+        B["Tab 2: Windows A2DP Enforcer & Power"]
+        C["Tab 3: Architecture & Live Hex Wire Inspector"]
+        D["First-Run Onboarding Wizard & EN/IT Switcher"]
     end
 
-    subgraph Backend ["Tauri Backend (Rust)"]
-        D["Tauri Command Handlers & State"]
-        E["App Lifecycle & System Tray Service"]
+    subgraph Backend ["Tauri Backend (crates/sonybridge-app/src/main.rs)"]
+        E["Async Tauri IPC Commands & AppState"]
+        F["Windows System Tray Icon & Context Menu"]
     end
 
-    subgraph Core ["sonybridge-core (Pure Rust)"]
-        F["MDR Protocol Encoder/Decoder"]
-        G["Command Builder (ANC, EQ, Battery)"]
-        H["Connection State Machine"]
+    subgraph Core ["crates/sonybridge-core (#![forbid(unsafe_code)])"]
+        G["MDR v1/v2 Wire Codec (0x3E..0x3C, 0x3D Byte Stuffing)"]
+        H["Command Builders (0x68 ANC, 0x58 EQ, 0x12 Battery, 0x28 Power, 0xD8 Touch)"]
+        I["HeadphoneStateMachine, AppConfig & EN/IT i18n"]
     end
 
-    subgraph Platform ["sonybridge-windows (Win32 / WinRT)"]
-        I["Bluetooth RFCOMM Transport"]
-        J["Audio Endpoint Sanitizer (COM)"]
-        K["Device Arrival Watcher"]
+    subgraph Platform ["crates/sonybridge-windows (WinRT & Win32 COM)"]
+        J["WinRtRfcommTransport (RfcommDeviceService + StreamSocket)"]
+        K["AudioEndpointSanitizer (IMMDeviceEnumerator + IPolicyConfig)"]
+        L["AutostartManager (HKCU Run Registry)"]
     end
 
     subgraph Hardware ["Sony Headphones (Physical Device)"]
-        L["WH-1000XM3 / XM4 / XM5"]
+        M["WH-1000XM3 / WH-1000XM4 / WH-1000XM5 / WF Series"]
     end
 
-    A <-->|Tauri IPC Invoke/Events| D
-    B <-->|Tray Events| E
-    D <--> H
-    E <--> D
-    H <--> F
-    F <--> G
-    H <--> I
-    I <-->|Bluetooth RFCOMM / SPP| L
-    D --> J
-    K -->|OS Device Event| H
+    UI <-->|"Tauri IPC"| E
+    F <--> E
+    E <--> I
+    I <--> G
+    G <--> H
+    E <--> J
+    J <-->|"Bluetooth RFCOMM Socket"| M
+    E --> K
+    E --> L
 ```
 
 ---
 
-## Module Boundaries (Designed for Parallel Work)
+## Module Boundaries (Designed for Parallel Multi-Agent Work)
 
 ```
 crates/
-├── sonybridge-core/       # Pure protocol logic, #![forbid(unsafe_code)], zero OS deps, 100% unit-tested
-│   ├── src/
-│   │   ├── lib.rs
-│   │   ├── protocol/      # Packet framing (0x0C start byte, seq, payload, checksum)
-│   │   ├── commands/      # ANC, EQ, Battery, AutoPower, TouchSensor command schemas
-│   │   ├── state.rs       # Connection & device state machine
-│   │   └── models.rs      # Device profiles, EQ presets, Battery levels
-│   └── tests/             # Golden packet fixtures from real packet captures
-│
-├── sonybridge-windows/    # Windows OS integrations (WinRT Bluetooth, Winsock, Core Audio)
-│   ├── src/
-│   │   ├── lib.rs
-│   │   ├── bluetooth.rs   # RFCOMM socket stream & device watcher
-│   │   ├── audio.rs       # Windows Core Audio endpoint routing & A2DP enforcement
-│   │   └── notification.rs# Windows toast notification helper
-│
-├── sonybridge-cli/        # Headless diagnostic tool & M0 spike probe
+├── sonybridge-core/               # Pure protocol logic, #![forbid(unsafe_code)], zero OS deps, 14 unit tests
 │   └── src/
-│       └── main.rs        # CLI for probing paired devices, packet sniffer, raw command injector
+│       ├── lib.rs
+│       ├── protocol.rs            # Canonical + Sony MDR v1 byte-stuffed framing (0x3E..0x3C, 0x3D escape, checksum)
+│       ├── commands.rs            # 0x12/0x13 Battery, 0x68 NC/Ambient, 0x58 5-Band EQ & Clear Bass, 0x28 Power, 0xD8 Touch
+│       ├── state.rs               # Deterministic HeadphoneStateMachine
+│       ├── config.rs              # Persistent AppConfig & 4 built-in SoundProfiles (Focus, Office, Cinema, Reference)
+│       ├── i18n.rs                # Bilingual English (en) & Italian (it) localization bundles
+│       └── transport.rs           # RfcommTransport trait & MockRfcommTransport
 │
-└── sonybridge-app/        # Tauri v2 Desktop & System Tray binary
-    ├── src-tauri/
-    │   ├── src/
-    │   │   ├── main.rs
-    │   │   ├── tray.rs    # Taskbar system tray icon & context menu
-    │   │   └── commands.rs# IPC command bridges between Frontend and Core
-    │   └── Cargo.toml
-    └── ui/                # Frontend web application (Svelte/TypeScript)
-        ├── src/
-        └── index.html
+├── sonybridge-windows/            # Windows OS integrations (WinRT Bluetooth RFCOMM, Core Audio COM, Registry)
+│   └── src/
+│       ├── lib.rs
+│       ├── bluetooth.rs           # WinRtRfcommTransport over RfcommDeviceService & StreamSocket (DataWriter/DataReader)
+│       ├── audio.rs               # AudioEndpointSanitizer (IMMDeviceEnumerator + IPolicyConfig::SetDefaultEndpoint)
+│       └── autostart.rs           # AutostartManager for HKCU\Software\Microsoft\Windows\CurrentVersion\Run\SonyBridge
+│
+├── sonybridge-cli/                # Headless diagnostic CLI & A2DP enforcer
+│   └── src/
+│       └── main.rs                # `sonybridge-cli probe` and `sonybridge-cli enforce-a2dp`
+│
+└── sonybridge-app/                # Tauri v2 Desktop & System Tray application
+    ├── src/
+    │   └── main.rs                # Tray lifecycle, IPC commands, live wire_hex telemetry, profile switching
+    ├── locales/
+    │   ├── en.toml                # English UI locale dictionary
+    │   └── it.toml                # Italian UI locale dictionary
+    └── ui/
+        ├── index.html             # 3-tab flyout layout + First-Run Onboarding Wizard modal
+        ├── style.css              # Glassmorphic dark theme with Sony copper/cyan accents
+        └── app.js                 # Reactive state binding, debounced EQ/ANC dispatch, live hex wire log
 ```
-
-### Dependency Rules:
-1. `sonybridge-core` **MUST NEVER** import `windows`, `windows-sys`, or `tauri`. It is purely platform-agnostic and unit-testable on any OS.
-2. `sonybridge-windows` implements transport traits defined by `sonybridge-core`.
-3. `sonybridge-cli` depends on `core` and `windows` for rapid headless verification during spikes without needing the GUI.
-4. Independent roadmap tasks touch disjoint crates, enabling parallel worker subagents.
 
 ---
 
 ## Key Technical Designs
 
-### 1. Sony MDR Protocol Framing
-- **Packet Structure:**
-  - Start Byte: `0x0C` (or `0x0E` depending on series/packet type)
-  - Sequence Number: 1 byte (`0x00` - `0xFF`)
-  - Payload Length: 4 bytes big-endian (or 1 byte in older framing)
-  - Payload: Command ID + Type + Arguments
-  - Checksum: Simple 8-bit sum (`SUM(payload_bytes) & 0xFF`) or CRC
-- **Handshake Sequence:**
-  1. Open RFCOMM channel to Sony MDR Service UUID (`00001101-0000-1000-8000-00805F9B34FB` or Sony proprietary SPP UUID `96CC203E-5068-46AD-B32D-396CEEBE3928`).
-  2. Send `CmdGetProtocolVersion` (`0x00`) → Receive Protocol capability bitmask.
-  3. Send `CmdGetDeviceInfo` → Headphone model string ("WH-1000XM3").
-  4. Query initial status: Battery (`0x02`), NC/Ambient Sound (`0x08`), EQ Table (`0x04`).
+### 1. Authentic Sony WH-1000XM3 MDR v1 Byte-Stuffed Wire Framing
+- **Wire Packet Layout:**
+  - Start Marker: `0x3E` (`>`)
+  - Data Type: `0x0C` (`DATA_MDR`) or `0x01` (`ACK`)
+  - Sequence Number: `u8`
+  - Payload Length: 4-byte big-endian `u32`
+  - Payload: `[Opcode, ...Parameters]`
+  - Checksum: `SUM(data_type, seq, len[0..4], payload[..]) & 0xFF`
+  - Escape Stuffing: Any occurrence of `0x3E`, `0x3C`, or `0x3D` inside `[data_type .. checksum]` is escaped as `[0x3D, byte & !0x10]`.
+  - End Marker: `0x3C` (`<`)
 
-### 2. Windows 10 Bluetooth RFCOMM Transport 🔬 (Spike M0.2)
-- Windows 10 provides `Windows.Devices.Bluetooth.Rfcomm.RfcommDeviceService`.
-- If WinRT throws `AccessDenied` or fails to bind the socket when paired via Windows Settings, the transport falls back to native Winsock (`AF_BTH`, socket type `SOCK_STREAM`, protocol `BTHPROTO_RFCOMM`), binding directly to the device's Bluetooth MAC address (`BTH_ADDR`).
+### 2. WinRT Bluetooth RFCOMM Socket Transport (`bluetooth.rs`)
+- Queries paired RFCOMM services via `DeviceInformation::FindAllAsyncAqsFilter` for Sony MDR v1 (`96cc203e-5068-46ad-b32d-396ceebe3928`), MDR v2 (`956c7b26-d49a-4ba8-b03f-b17d393cb6e2`), and standard SPP (`00001101-0000-1000-8000-00805f9b34fb`).
+- Connects a WinRT `StreamSocket` to `ConnectionHostName` / `ConnectionServiceName` and transmits framed packets via `DataWriter` / `DataReader`, falling back gracefully to headless simulation if no physical headset is currently in range.
 
-### 3. Audio Endpoint Sanitizer 🔬 (Spike M0.4)
-- When a headset connects, Windows often sets Hands-Free AG as default communication device and sometimes mistakenly routes multimedia audio to it.
-- Using `IMMDeviceEnumerator` and the undocumented but stable `IPolicyConfig` COM interface, SonyBridge can enumerate audio endpoints, identify the A2DP Stereo device matching the Bluetooth hardware address, and set it as the active default multimedia console audio device.
-
----
-
-## Rejected Alternatives
-- **Electron:** Rejected due to excessive memory consumption (> 150 MB RAM at idle) and bundle size (> 90 MB). A background system tray utility must stay under 35 MB RAM.
-- **Pure Python (ctypes/Tkinter):** Rejected due to complex Windows installer distribution, runtime overhead, and difficulty achieving clean system tray integration without bundling heavy PyInstaller binaries.
-- **Kernel-mode Virtual Audio Driver:** Rejected because user-space COM endpoint routing achieves the desired result without driver signing requirements, blue screen risks, or requiring administrator privileges.
-
----
-
-## Known Limitations
-- Connecting to the headphone's MDR control channel requires that the headphones are paired and connected to Windows via standard Bluetooth first.
-- Simultaneous multi-point connection management is limited by the WH-1000XM3 hardware (multipoint was formally introduced in the WH-1000XM4).
+### 3. Windows Core Audio Endpoint Sanitizer (`audio.rs`)
+- Uses `IMMDeviceEnumerator::EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE)` to classify Sony **Stereo (`A2DP`)** vs **`Hands-Free AG Audio` (`HFP`)** endpoints.
+- Invokes the `IPolicyConfig` COM vtable (`SetDefaultEndpoint` for `eConsole`, `eMultimedia`, and `eCommunications`) to switch Windows audio back to high-bitrate Stereo (`A2DP`).
+- Scopes all COM interface pointers inside an inner block prior to `CoUninitialize()` and frees `PWSTR` endpoint IDs via `CoTaskMemFree`.

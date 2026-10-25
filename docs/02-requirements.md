@@ -52,8 +52,14 @@
 
 ### F8 — System Tray & Desktop Experience (M)
 - F8.1 Minimize-to-tray by default with custom tray icon reflecting connection and battery status.
-- F8.2 Tray context menu with quick toggles: Quick Reconnect, ANC Mode (NC / Ambient / Off), Battery Status, and Exit.
-- F8.3 Clean, modern responsive window (built with Tauri v2 and modern web UI) matching Windows 10/11 dark/light themes.
+- F8.2 Tray context menu with quick toggles: Quick Reconnect, Open Dashboard, and Quit.
+- F8.3 Clean, modern 3-tab responsive flyout (`Dashboard & EQ`, `Windows & Power`, `Architecture & Wire Inspector`), 1-click Sound Profiles, First-Run Onboarding Wizard, and bilingual EN/IT localization.
+
+### F9 — Zero-Elevation Distribution, Setup Wizard & Uninstallation (M)
+- F9.1 Ship every release as a self-contained portable `.zip` archive (`SonyBridge-vX.Y.Z-windows-x64.zip`) on GitHub Releases containing pre-built `sonybridge-app.exe` and `sonybridge-cli.exe` binaries.
+- F9.2 Include a zero-elevation graphical Windows Forms Setup Wizard (`setup.cmd` / `setup-wizard.ps1` with `-Silent` and `-NoGui` modes) that installs into `%LOCALAPPDATA%\Programs\SonyBridge`, creates Start Menu & Desktop shortcuts, configures `HKCU\...\Run` autostart, and registers in Windows **Installed apps** (`HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\SonyBridge`).
+- F9.3 Generate automated **Microsoft WinGet** (`packaging/winget/manifests/d/DooperDrew/SonyBridge/<version>/`) and **Scoop** (`packaging/scoop/sonybridge.json`) package manifests via `scripts/generate-manifests.ps1`.
+- F9.4 Provide clean uninstallation (`uninstall.ps1` with `-Silent` and `-PurgeData` flags) integrated with Windows Settings &rarr; Installed apps.
 
 ---
 
