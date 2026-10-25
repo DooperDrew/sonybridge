@@ -4,6 +4,7 @@ members = [
     "crates/sonybridge-core",
     "crates/sonybridge-windows",
     "crates/sonybridge-cli",
+    "crates/sonybridge-app",
 ]
 
 [workspace.package]

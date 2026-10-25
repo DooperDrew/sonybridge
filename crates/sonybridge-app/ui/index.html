@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SonyBridge</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+            <path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1a7 7 0 0 1 14 0v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>SonyBridge</h1>
+          <span class="device-name" id="device-name">WH-1000XM3 Companion</span>
+        </div>
+      </div>
+      <div class="header-status">
+        <div class="connection-pill" id="connection-pill">
+          <span class="status-dot connected"></span>
+          <span id="connection-text">Connected</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btn-reconnect" title="Refresh Bluetooth link">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+            <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+          </svg>
+          Reconnect
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-grid">
+      <!-- Left Column: Battery & ANC Controls -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Device Telemetry</h2>
+        </div>
+        <div class="battery-card">
+          <div class="battery-gauge">
+            <div class="battery-icon-container">
+              <div class="battery-outline">
+                <div class="battery-fill" id="battery-fill" style="width: 85%;"></div>
+              </div>
+              <div class="battery-tip"></div>
+            </div>
+            <div class="battery-info">
+              <span class="battery-pct" id="battery-pct">85%</span>
+              <span class="battery-status" id="battery-status">Discharging (Normal)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-header" style="margin-top: 1.5rem;">
+          <h2>Noise Canceling & Ambient Sound</h2>
+        </div>
+        <div class="anc-controls">
+          <div class="segmented-control" id="anc-modes">
+            <button class="seg-btn active" data-mode="NoiseCanceling">Noise Canceling</button>
+            <button class="seg-btn" data-mode="AmbientSound">Ambient Sound</button>
+            <button class="seg-btn" data-mode="Off">Off</button>
+          </div>
+
+          <div class="slider-group" id="ambient-slider-group">
+            <div class="slider-header">
+              <span>Ambient Sound Level</span>
+              <span class="slider-value" id="ambient-level-val">Level 7</span>
+            </div>
+            <input type="range" min="1" max="20" value="7" class="range-slider" id="ambient-slider">
+            <div class="slider-ticks">
+              <span>Min (1)</span>
+              <span>Voice Focus (7)</span>
+              <span>Max Transparency (20)</span>
+            </div>
+
+            <label class="checkbox-container">
+              <input type="checkbox" id="voice-focus-check">
+              <span class="checkbox-label">Focus on Voice (attenuate low frequency rumble)</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Hardware Equalizer -->
+      <section class="card">
+        <div class="card-header flex-between">
+          <h2>Hardware Equalizer</h2>
+          <select class="select-preset" id="eq-preset-select">
+            <option value="Off">Flat / Off</option>
+            <option value="Excited" selected>Excited</option>
+            <option value="Bright">Bright</option>
+            <option value="Mellow">Mellow</option>
+            <option value="Relaxed">Relaxed</option>
+            <option value="Vocal">Vocal</option>
+            <option value="TrebleBoost">Treble Boost</option>
+            <option value="BassBoost">Bass Boost</option>
+            <option value="Speech">Speech</option>
+            <option value="Custom1">Custom 1</option>
+            <option value="Custom2">Custom 2</option>
+          </select>
+        </div>
+
+        <div class="eq-visualizer">
+          <div class="eq-bands">
+            <div class="eq-band">
+              <span class="band-val" id="val-400">0</span>
+              <input type="range" min="-10" max="10" value="0" class="eq-slider" id="eq-400">
+              <span class="band-lbl">400</span>
+            </div>
+            <div class="eq-band">
+              <span class="band-val" id="val-1k">+2</span>
+              <input type="range" min="-10" max="10" value="2" class="eq-slider" id="eq-1k">
+              <span class="band-lbl">1k</span>
+            </div>
+            <div class="eq-band">
+              <span class="band-val" id="val-2k5">+4</span>
+              <input type="range" min="-10" max="10" value="4" class="eq-slider" id="eq-2k5">
+              <span class="band-lbl">2.5k</span>
+            </div>
+            <div class="eq-band">
+              <span class="band-val" id="val-6k3">+3</span>
+              <input type="range" min="-10" max="10" value="3" class="eq-slider" id="eq-6k3">
+              <span class="band-lbl">6.3k</span>
+            </div>
+            <div class="eq-band">
+              <span class="band-val" id="val-16k">+1</span>
+              <input type="range" min="-10" max="10" value="1" class="eq-slider" id="eq-16k">
+              <span class="band-lbl">16k</span>
+            </div>
+          </div>
+
+          <div class="clear-bass-container">
+            <div class="slider-header">
+              <span>Clear Bass (DSP Sub-Bass)</span>
+              <span class="slider-value" id="clear-bass-val">+3</span>
+            </div>
+            <input type="range" min="-10" max="10" value="3" class="range-slider" id="clear-bass-slider">
+          </div>
+        </div>
+
+        <div class="hardware-sync-badge">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="#c5a059">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+          </svg>
+          <span>Synced directly to headphone EEPROM</span>
+        </div>
+      </section>
+
+      <!-- Bottom Settings & Audio Routing -->
+      <section class="card full-width">
+        <div class="card-header">
+          <h2>Windows Integration & Audio Health</h2>
+        </div>
+        <div class="settings-grid">
+          <div class="setting-item">
+            <div class="setting-text">
+              <h3>Stereo Audio Enforcement (Anti-Hands-Free)</h3>
+              <p>Ensures Windows routes high-bitrate A2DP music instead of low-quality telephony.</p>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btn-fix-audio">Enforce A2DP</button>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-text">
+              <h3>Earcup Touch Sensor Controls</h3>
+              <p>Toggle swipe and tap sensors to prevent accidental activations.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="touch-sensor-toggle" checked>
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-text">
+              <h3>Auto-Power Off Timeout</h3>
+              <p>Turns off headphones automatically when no audio is playing.</p>
+            </div>
+            <select class="select-preset" id="auto-off-select">
+              <option value="0">Do not turn off</option>
+              <option value="5">5 minutes</option>
+              <option value="30" selected>30 minutes</option>
+              <option value="60">1 hour</option>
+              <option value="180">3 hours</option>
+            </select>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>SonyBridge v0.1.0 • System Tray Active</span>
+      <span class="status-fine" id="status-fine">Bluetooth Link: Healthy (80 ms latency)</span>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

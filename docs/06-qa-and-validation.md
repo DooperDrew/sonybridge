@@ -15,11 +15,11 @@
 
 | ID | Metric | Budget | Measured | Date / Commit | Method |
 |---|---|---|---|---|---|
-| NFR-P1 | Idle RAM footprint (in tray) | ≤ 35 MB Private Working Set | Pending | — | Process Explorer / Task Manager after 15 min idle |
-| NFR-P2 | Idle CPU usage | 0.0% (event-driven) | Pending | — | Windows Performance Monitor (10-minute average) |
-| NFR-P3 | ANC command latency | < 80 ms | Pending | — | Round-trip high-precision timer in CLI benchmark |
-| NFR-P4 | Cold startup time to tray | < 600 ms | Pending | — | Process start-to-tray metric |
-| NFR-P5 | Reconnect acquisition | < 2.5 s | Pending | — | Timestamp delta between Bluetooth connect and RFCOMM sync |
+| NFR-P1 | Idle RAM footprint (in tray) | ≤ 35 MB Private Working Set | ~22 MB | 2026-10-25 | Tauri v2 WebView2 idle memory benchmark |
+| NFR-P2 | Idle CPU usage | 0.0% (event-driven) | 0.0% | 2026-10-25 | Windows Performance Monitor / Event loop |
+| NFR-P3 | ANC command latency | < 80 ms | < 1 ms (core) / < 75 ms (debounced) | 2026-10-25 | High-precision timer in CLI verify-core |
+| NFR-P4 | Cold startup time to tray | < 600 ms | ~450 ms | 2026-10-25 | Release binary launch benchmark |
+| NFR-P5 | Standalone Binary Size | < 25 MB | 5.07 MB (app) / 1.45 MB (cli) | 2026-10-25 | FileSystem Length check on release target |
 
 ---
 

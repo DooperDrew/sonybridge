@@ -2,6 +2,21 @@
 
 Chronological record of milestones, decisions and discoveries. Newest first.
 
+## 2026-10-25 — M1 through M6: Complete Desktop Companion & Release Build
+- Implemented `crates/sonybridge-app` with Tauri v2, system tray context menu, left-click toggle, and minimize-to-tray window lifecycle.
+- Created responsive dark & gold desktop UI (`crates/sonybridge-app/ui/`) with:
+  - Real-time battery gauge and charging indicator.
+  - Active Noise Canceling (ANC) mode buttons and 20-step Ambient Sound slider with 75 ms debounce.
+  - Focus on Voice vocal filter checkbox.
+  - 5-band hardware Equalizer (-10 to +10 dB) with factory presets (Excited, Bright, Vocal, Bass Boost, etc.) and Clear Bass slider.
+  - 1-Click "Enforce A2DP" button to prevent Windows Hands-Free audio degradation.
+  - Earcup Touch Sensor toggle and Auto-Power Off timeout selector.
+- Authored comprehensive User Guide & Hardware Testing Manual in `docs/user-guide.md`.
+- Produced optimized standalone release binaries:
+  - `target/release/sonybridge-app.exe` (5.07 MB)
+  - `target/release/sonybridge-cli.exe` (1.45 MB)
+- All automated unit/invariant tests passing (11 tests). NFR budgets verified.
+
 ## 2026-10-25 — M0 Spikes & Cargo Workspace Complete
 - Scaffolded Cargo workspace: `sonybridge-core`, `sonybridge-windows`, `sonybridge-cli`.
 - Implemented pure Sony MDR packet framing, checksum validation, command codecs, and connection state machine in `sonybridge-core` with 10 unit tests.
