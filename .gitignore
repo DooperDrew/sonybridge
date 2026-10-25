@@ -1,0 +1,21 @@
+# Rust / Cargo
+/target/
+Cargo.lock
+
+# Node / UI
+/ui/node_modules/
+/ui/dist/
+
+# Tauri build artifacts
+/src-tauri/target/
+
+# Windows OS files
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.iml

@@ -1,0 +1,30 @@
+name: Bug report
+description: Something doesn't work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Steps to reproduce, expected vs actual behavior.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version / Git commit hash
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: Windows OS build (winver), Sony headphone model (e.g. WH-1000XM3), firmware version.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Diagnostic Logs / Hex Packet Dump
+      description: Output from `sonybridge-cli probe` if available.
+      render: text
