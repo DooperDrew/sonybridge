@@ -1,0 +1,386 @@
+{
+  "session_name": "sonybridge-ui-qa",
+  "target_description": "C:\\Dev\\AgenticAI\\sonybridge\\target\\release\\sonybridge-app.exe 'SonyBridge — WH-1000XM3 Companion' (PID 34084)",
+  "started_at": "2026-10-27T12:08:08.666726500Z",
+  "completed_at": "2026-10-27T12:08:45.822297Z",
+  "total_steps": 15,
+  "unique_states_visited": 15,
+  "findings": [],
+  "steps": [
+    {
+      "step_index": 0,
+      "timestamp": "2026-10-27T12:08:09.388861300Z",
+      "state_hash": "state-f174630fe5c7b42d",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-08-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-000.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-000-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 714,
+        "pid": 34084,
+        "working_set_bytes": 28549120,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 1,
+      "timestamp": "2026-10-27T12:08:11.783801700Z",
+      "state_hash": "state-1eb144e966c2deb0",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-001.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-001-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 3109,
+        "pid": 34084,
+        "working_set_bytes": 28553216,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 2,
+      "timestamp": "2026-10-27T12:08:14.239037800Z",
+      "state_hash": "state-32931f61b06083cc",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-002.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-002-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 5564,
+        "pid": 34084,
+        "working_set_bytes": 28553216,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 3,
+      "timestamp": "2026-10-27T12:08:16.694238700Z",
+      "state_hash": "state-4674f9d9830628e8",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-003.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-003-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 8019,
+        "pid": 34084,
+        "working_set_bytes": 28557312,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 4,
+      "timestamp": "2026-10-27T12:08:19.153934200Z",
+      "state_hash": "state-5a56d451cedbce04",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-004.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-004-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 10479,
+        "pid": 34084,
+        "working_set_bytes": 28557312,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 5,
+      "timestamp": "2026-10-27T12:08:21.606098800Z",
+      "state_hash": "state-c66a6e07d1010628",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-005.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-005-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 12931,
+        "pid": 34084,
+        "working_set_bytes": 28557312,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 6,
+      "timestamp": "2026-10-27T12:08:24.062201600Z",
+      "state_hash": "state-da4c487e1ca6ab44",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-006.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-006-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 15387,
+        "pid": 34084,
+        "working_set_bytes": 28557312,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 7,
+      "timestamp": "2026-10-27T12:08:26.499161400Z",
+      "state_hash": "state-ee2e22f66e445060",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-007.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-007-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 17824,
+        "pid": 34084,
+        "working_set_bytes": 28557312,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 8,
+      "timestamp": "2026-10-27T12:08:28.944958200Z",
+      "state_hash": "state-d6cb670c27f08170",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-008.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-008-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 20270,
+        "pid": 34084,
+        "working_set_bytes": 28557312,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 9,
+      "timestamp": "2026-10-27T12:08:31.390663Z",
+      "state_hash": "state-eaad41847296268c",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-009.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-009-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 22716,
+        "pid": 34084,
+        "working_set_bytes": 28557312,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 10,
+      "timestamp": "2026-10-27T12:08:33.832327300Z",
+      "state_hash": "state-330469d303add6b3",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-010.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-010-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 25158,
+        "pid": 34084,
+        "working_set_bytes": 28557312,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 11,
+      "timestamp": "2026-10-27T12:08:36.292248400Z",
+      "state_hash": "state-46e6444b4d437bcf",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-011.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-011-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 27618,
+        "pid": 34084,
+        "working_set_bytes": 28561408,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 12,
+      "timestamp": "2026-10-27T12:08:38.750299300Z",
+      "state_hash": "state-5ac81ec398e120eb",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-012.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-012-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 30076,
+        "pid": 34084,
+        "working_set_bytes": 28516352,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 13,
+      "timestamp": "2026-10-27T12:08:41.209834300Z",
+      "state_hash": "state-5c117ed677c54ae4",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-013.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-013-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 32535,
+        "pid": 34084,
+        "working_set_bytes": 28516352,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    },
+    {
+      "step_index": 14,
+      "timestamp": "2026-10-27T12:08:43.667348Z",
+      "state_hash": "state-6ff3594e429af000",
+      "dhash": 17731772481536,
+      "action": {
+        "kind": "click",
+        "element_id": "uia-06-50000",
+        "element_name": "Dashboard & EQ",
+        "x": 491,
+        "y": 71
+      },
+      "screenshot_path": "qa-reports/sonybridge\\screenshots\\step-014.png",
+      "annotated_screenshot_path": "qa-reports/sonybridge\\screenshots\\step-014-annotated.png",
+      "correlated_logs": [],
+      "health": {
+        "timestamp_ms": 34993,
+        "pid": 34084,
+        "working_set_bytes": 28516352,
+        "cpu_percent": 0.0,
+        "is_hung": false,
+        "exited_code": null
+      },
+      "findings": []
+    }
+  ]
+}

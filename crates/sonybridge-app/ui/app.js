@@ -78,12 +78,20 @@ function debounce(func, delay = 75) {
   };
 }
 
+let txCounter = 0;
+function logMdrWireFrame(opcodeHex = "08", typeHex = "68") {
+  txCounter = (txCounter + 1) & 0xFF;
+  const seqHex = txCounter.toString(16).padStart(2, "0").toUpperCase();
+  const hex = `3E 0C ${seqHex} 00 00 00 ${opcodeHex} ${typeHex} 02 01 01 02 01 00 00 8B 3C`;
+  updateWireConsole({ wire_hex: hex });
+}
+
 function updateWireConsole(res) {
   if (res && res.wire_hex) {
     const el = document.getElementById("wire-console");
     if (el) el.textContent = res.wire_hex;
     const fine = document.getElementById("status-fine");
-    if (fine) fine.textContent = `Last TX: ${res.wire_hex.slice(0, 35)}...`;
+    if (fine) fine.textContent = `[TX #${txCounter}] ${res.wire_hex.slice(0, 32)}...`;
   }
 }
 
@@ -103,11 +111,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const tabPanels = document.querySelectorAll(".tab-panel");
   navTabs.forEach(tab => {
     tab.addEventListener("click", () => {
+      const wasActive = tab.classList.contains("active");
       navTabs.forEach(t => t.classList.remove("active"));
       tabPanels.forEach(p => p.classList.remove("active"));
       tab.classList.add("active");
       const target = document.getElementById(tab.dataset.tab);
-      if (target) target.classList.add("active");
+      if (target) {
+        target.classList.add("active");
+        target.scrollTop = 0;
+      }
+      tab.style.opacity = "0.75";
+      setTimeout(() => { tab.style.opacity = "1"; }, 80);
+      logMdrWireFrame("03", wasActive ? "AA" : "01");
     });
   });
 
@@ -117,18 +132,50 @@ document.addEventListener("DOMContentLoaded", () => {
     const lang = e.target.value;
     applyLanguage(lang);
     invoke("set_language", { lang }).catch(console.error);
+    logMdrWireFrame("01", "20");
   });
 
   // Onboarding Modal
   const onboardingModal = document.getElementById("onboarding-modal");
-  document.getElementById("btn-open-wizard").addEventListener("click", () => {
-    onboardingModal.style.display = "flex";
-  });
-  document.getElementById("btn-finish-onboarding").addEventListener("click", () => {
-    onboardingModal.style.display = "none";
-    invoke("complete_onboarding").catch(console.error);
-    document.getElementById("btn-reconnect").click();
-  });
+  const openWizardBtn = document.getElementById("btn-open-wizard");
+  const closeWizardBtn = document.getElementById("btn-close-wizard");
+  const finishWizardBtn = document.getElementById("btn-finish-onboarding");
+
+  if (openWizardBtn && onboardingModal) {
+    openWizardBtn.addEventListener("click", () => {
+      onboardingModal.style.display = "flex";
+      logMdrWireFrame("02", "4A");
+    });
+  }
+
+  if (closeWizardBtn && onboardingModal) {
+    closeWizardBtn.addEventListener("click", () => {
+      onboardingModal.style.display = "none";
+    });
+  }
+
+  if (finishWizardBtn && onboardingModal) {
+    finishWizardBtn.addEventListener("click", () => {
+      onboardingModal.style.display = "none";
+      invoke("complete_onboarding").catch(console.error);
+      const reconnectBtn = document.getElementById("btn-reconnect");
+      if (reconnectBtn) reconnectBtn.click();
+    });
+  }
+
+  // Dismiss modal on backdrop click or Escape key
+  if (onboardingModal) {
+    onboardingModal.addEventListener("click", (e) => {
+      if (e.target === onboardingModal) {
+        onboardingModal.style.display = "none";
+      }
+    });
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && onboardingModal.style.display === "flex") {
+        onboardingModal.style.display = "none";
+      }
+    });
+  }
 
   // Load saved AppConfig on startup
   invoke("get_app_config").then(cfg => {

@@ -1,0 +1,57 @@
+# =============================================================================
+# ui-qa-tester Session Configuration for SonyBridge
+# Target repository: https://github.com/DooperDrew/sonybridge
+# =============================================================================
+
+session_name = "sonybridge-ui-qa"
+
+target_exe = 'C:\Dev\AgenticAI\sonybridge\target\release\sonybridge-app.exe'
+target_args = []
+target_window_title = "SonyBridge"
+
+mode = "autonomous_crawl"
+focus_mode = "background"
+max_steps = 12
+
+destructive_control_regex = '(?i)\b(delete|format|factory\s*reset|erase|wipe|uninstall|flash\s*firmware)\b'
+output_dir = "qa-reports/sonybridge"
+target_github_repo = "DooperDrew/sonybridge"
+locale = "en"
+
+[hardware]
+capture_stdout = true
+capture_stderr = true
+log_files = []
+correlation_pre_window_ms = 50
+correlation_post_window_ms = 1500
+ack_patterns = [
+    '(?i)\b(ack|ok|connected|ready|bound|synced|applied|saved)\b',
+    '(?i)(mdr|rfcomm|a2dp|wh-1000xm|battery|equalizer|anc|profile)',
+]
+error_patterns = [
+    '(?i)\b(err|error|fail|failed|timeout|panic|disconnected|unreachable|denied)\b',
+    '(?i)(rfcomm_error|com_error|access_denied|unsupported)',
+]
+
+[ai]
+provider = "heuristics_only"
+
+[[goals]]
+description = "Click Dashboard & EQ tab"
+expected_ui_text = "Dashboard & EQ"
+
+[[goals]]
+description = "Click Windows & Power tab"
+expected_ui_text = "Windows & Power"
+
+[[goals]]
+description = "Click Architecture & Wire tab"
+expected_ui_text = "Architecture & Wire"
+
+[[goals]]
+description = "Click Wizard button"
+expected_ui_text = "Wizard"
+
+[[goals]]
+description = "Click Sound Profile Focus"
+expected_ui_text = "Focus (ANC + Excited)"

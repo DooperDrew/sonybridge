@@ -26,14 +26,39 @@ body {
   font-family: var(--font-family);
   font-size: 14px;
   line-height: 1.5;
-  overflow-x: hidden;
+  overflow: hidden;
+  height: 100vh;
 }
 
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  padding: 1.15rem 1.25rem;
+  height: 100vh;
+  padding: 1rem 1.25rem 0.75rem;
+  box-sizing: border-box;
+}
+
+main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold);
 }
 
 /* Header */
@@ -102,13 +127,18 @@ body {
 .nav-tab {
   background: transparent;
   border: none;
-  color: var(--text-muted);
+  color: #cbd5e1;
   padding: 0.38rem 0.85rem;
   border-radius: 6px;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+}
+
+.nav-tab:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .nav-tab.active {
@@ -166,7 +196,7 @@ body {
 .profile-bar-label {
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: #cbd5e1;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -178,9 +208,9 @@ body {
 }
 
 .profile-chip {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
+  background: #232733;
+  border: 1px solid #475569;
+  color: #e2e8f0;
   padding: 0.28rem 0.7rem;
   border-radius: 999px;
   font-size: 0.78rem;
@@ -190,12 +220,13 @@ body {
 
 .profile-chip:hover {
   border-color: var(--accent-gold);
+  color: #ffffff;
 }
 
 .profile-chip.active {
   background: var(--accent-gold-dim);
   border-color: var(--accent-gold);
-  color: var(--accent-gold);
+  color: #ffd88a;
   font-weight: 600;
 }
 
@@ -206,6 +237,7 @@ body {
 
 .tab-panel.active {
   display: grid;
+  padding-bottom: 2.5rem;
 }
 
 .main-grid {
@@ -243,7 +275,7 @@ body {
 .card-header h2 {
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: #cbd5e1;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -321,20 +353,26 @@ body {
 
 .seg-btn {
   flex: 1;
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
+  background: #232733;
+  border: 1px solid #4b5563;
+  color: #f1f5f9;
   padding: 0.45rem 0.35rem;
   font-size: 0.78rem;
-  font-weight: 500;
+  font-weight: 600;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
+.seg-btn:hover {
+  border-color: var(--accent-gold);
+  color: #ffffff;
+}
+
 .seg-btn.active {
   background: var(--accent-gold);
   color: #121316;
+  border-color: var(--accent-gold);
   font-weight: 600;
 }
 
@@ -639,13 +677,32 @@ input:checked + .slider-toggle:before {
 }
 
 .btn-secondary {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
+  background: #232733;
+  border: 1px solid #475569;
+  color: #f1f5f9;
 }
 
 .btn-secondary:hover {
-  background: var(--bg-card-hover);
+  background: #2d3242;
+  border-color: var(--accent-gold);
+  color: #ffffff;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.btn-close:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* Modal / Onboarding Wizard */

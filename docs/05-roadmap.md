@@ -40,5 +40,11 @@
 - [ ] **M9.1**: Empirical hardware validation on physical Sony WH-1000XM3 headphones (`sonybridge-cli.exe probe`, live battery, ANC/Ambient transitions, 5-band EQ & Clear Bass, A2DP enforcement) (`Pending`, `#10`)
 - [ ] **M9.2**: Power states, Windows sleep/resume, and Bluetooth out-of-range reconnection verification (`Pending`, `#11`)
 
-## Milestone M10: Multi-Model Expansion & Community Ecosystem (`v0.2.0` — Closed)
-- [x] **M10.1**: Document multi-agent engineering methodology, UX evolution, and community packaging strategy (`2026-10-25`, `#15`)
+## Milestone M10: Autonomous UI/UX & Accessibility Hardening (`v0.2.0` — Closed)
+- [x] **M10.1**: Eliminate layout clipping on Architecture tab and viewport (`VIS-CLIP-005`) (`2026-10-27`, `#16`)
+- [x] **M10.2**: Add explicit accessible names and ARIA labels to sliders, presets, and checkboxes (`A11Y-NAME-000`) (`2026-10-27`, `#17`)
+- [x] **M10.3**: Fix First-Run Wizard button responsiveness, modal dismiss triggers, and MDR wire frame emission (`UX-DEAD-BTN-013`) (`2026-10-27`, `#18`)
+- [x] **M10.4**: Elevate color contrast across inactive tabs, secondary buttons, and chips for WCAG AA conformance (`VIS-CONTRAST-007`) (`2026-10-27`, `#19`)
+
+## Milestone M11: Multi-Model Expansion & Community Ecosystem (`v0.2.0` — Closed)
+- [x] **M11.1**: Document multi-agent engineering methodology, UX evolution, and community packaging strategy (`2026-10-25`, `#15`)

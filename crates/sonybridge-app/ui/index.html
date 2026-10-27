@@ -97,7 +97,7 @@
               <span data-i18n="ambient_level">Ambient Sound Level</span>
               <span class="slider-value" id="ambient-level-val">Level 7</span>
             </div>
-            <input type="range" min="1" max="20" value="7" class="range-slider" id="ambient-slider">
+            <input type="range" min="1" max="20" value="7" class="range-slider" id="ambient-slider" aria-label="Ambient Sound Level Slider" title="Ambient Sound Level (1-20)">
             <div class="slider-ticks">
               <span>Min (1)</span>
               <span>Balanced (10)</span>
@@ -105,7 +105,7 @@
             </div>
 
             <label class="checkbox-container">
-              <input type="checkbox" id="voice-focus-check">
+              <input type="checkbox" id="voice-focus-check" aria-label="Focus on Voice (attenuate background drone)">
               <span class="checkbox-label" data-i18n="voice_focus">Focus on Voice (attenuate background drone)</span>
             </label>
           </div>
@@ -116,7 +116,7 @@
       <section class="card">
         <div class="card-header flex-between">
           <h2 data-i18n="eq_title">Hardware Equalizer</h2>
-          <select class="select-preset" id="eq-preset-select">
+          <select class="select-preset" id="eq-preset-select" aria-label="Equalizer Sound Preset" title="Select Equalizer Sound Preset">
             <option value="Off">Flat / Off</option>
             <option value="Excited" selected>Excited</option>
             <option value="Bright">Bright</option>
@@ -135,27 +135,27 @@
           <div class="eq-bands">
             <div class="eq-band">
               <span class="band-val" id="val-400">-1</span>
-              <input type="range" min="-10" max="10" value="-1" class="eq-slider" id="eq-400">
+              <input type="range" min="-10" max="10" value="-1" class="eq-slider" id="eq-400" aria-label="Equalizer 400 Hertz Band" title="400 Hz (-10 to +10 dB)">
               <span class="band-lbl">400</span>
             </div>
             <div class="eq-band">
               <span class="band-val" id="val-1k">+2</span>
-              <input type="range" min="-10" max="10" value="2" class="eq-slider" id="eq-1k">
+              <input type="range" min="-10" max="10" value="2" class="eq-slider" id="eq-1k" aria-label="Equalizer 1 Kilohertz Band" title="1 kHz (-10 to +10 dB)">
               <span class="band-lbl">1k</span>
             </div>
             <div class="eq-band">
               <span class="band-val" id="val-2k5">+4</span>
-              <input type="range" min="-10" max="10" value="4" class="eq-slider" id="eq-2k5">
+              <input type="range" min="-10" max="10" value="4" class="eq-slider" id="eq-2k5" aria-label="Equalizer 2.5 Kilohertz Band" title="2.5 kHz (-10 to +10 dB)">
               <span class="band-lbl">2.5k</span>
             </div>
             <div class="eq-band">
               <span class="band-val" id="val-6k3">+3</span>
-              <input type="range" min="-10" max="10" value="3" class="eq-slider" id="eq-6k3">
+              <input type="range" min="-10" max="10" value="3" class="eq-slider" id="eq-6k3" aria-label="Equalizer 6.3 Kilohertz Band" title="6.3 kHz (-10 to +10 dB)">
               <span class="band-lbl">6.3k</span>
             </div>
             <div class="eq-band">
               <span class="band-val" id="val-16k">+1</span>
-              <input type="range" min="-10" max="10" value="1" class="eq-slider" id="eq-16k">
+              <input type="range" min="-10" max="10" value="1" class="eq-slider" id="eq-16k" aria-label="Equalizer 16 Kilohertz Band" title="16 kHz (-10 to +10 dB)">
               <span class="band-lbl">16k</span>
             </div>
           </div>
@@ -165,7 +165,7 @@
               <span data-i18n="clear_bass">Clear Bass (DSP Sub-Bass)</span>
               <span class="slider-value" id="clear-bass-val">+3</span>
             </div>
-            <input type="range" min="-10" max="10" value="3" class="range-slider" id="clear-bass-slider">
+            <input type="range" min="-10" max="10" value="3" class="range-slider" id="clear-bass-slider" aria-label="Clear Bass DSP Sub-Bass Level" title="Clear Bass (-10 to +10)">
           </div>
         </div>
 
@@ -199,7 +199,7 @@
               <p>Registers SonyBridge in HKCU\...\CurrentVersion\Run (no administrator privileges required).</p>
             </div>
             <label class="switch">
-              <input type="checkbox" id="autostart-toggle" checked>
+              <input type="checkbox" id="autostart-toggle" checked aria-label="Launch SonyBridge on Windows Login">
               <span class="slider-toggle"></span>
             </label>
           </div>
@@ -210,7 +210,7 @@
               <p>Enable or lock right-earcup touch swipe gestures via MDR opcode 0xD8.</p>
             </div>
             <label class="switch">
-              <input type="checkbox" id="touch-sensor-toggle" checked>
+              <input type="checkbox" id="touch-sensor-toggle" checked aria-label="Earcup Touch Sensor Panel Toggle">
               <span class="slider-toggle"></span>
             </label>
           </div>
@@ -220,7 +220,7 @@
               <h3>Auto-Power Off Idle Timer</h3>
               <p>Configures headphone hardware shutdown timer when not worn or playing audio.</p>
             </div>
-            <select class="select-preset" id="auto-off-select">
+            <select class="select-preset" id="auto-off-select" aria-label="Auto-Power Off Idle Timer" title="Select Auto-Power Off Idle Timer">
               <option value="0">Do not turn off</option>
               <option value="5">5 minutes</option>
               <option value="30" selected>30 minutes</option>
@@ -286,6 +286,7 @@
         <div class="modal-header">
           <h2>Welcome to SonyBridge 🎧</h2>
           <span class="ver-badge">Guided Setup</span>
+          <button class="btn-close" id="btn-close-wizard" aria-label="Close Setup Guide" title="Close Setup Guide">&times;</button>
         </div>
         <p class="modal-intro">
           SonyBridge brings native Noise Canceling, 5-Band Hardware EQ, and Anti-Hands-Free audio routing to your Sony WH-1000XM3 on Windows 10/11.

@@ -2,6 +2,18 @@
 
 All notable changes to **SonyBridge** are documented in this file.
 
+## [Unreleased]
+
+### Hardened & Fixed (Autonomous UI/UX & Accessibility QA via `ui-qa-tester`)
+- **Accessibility & Contrast Conformance**:
+  - Added explicit `aria-label` and `title` attributes to all sliders, preset selectors, equalizer bands, and toggles (`#17`).
+  - Elevated contrast ratios across inactive tabs, secondary buttons, chips, and segmented controls for WCAG AA compliance (`#19`).
+- **Layout & Interaction Polish**:
+  - Resolved layout clipping on Architecture tab cards and footer by introducing custom scrollable viewports and adjusting window dimensions (`#16`).
+  - Fixed First-Run Wizard button responsiveness, modal dismiss handling (close button, backdrop click, Escape key), and live MDR sequence string emission (`#18`).
+- **Autonomous QA Harness**:
+  - Integrated `qa-session.toml` and verified 0 defects across 15 crawl steps and 75 UIA elements using `ui-qa-tester`.
+
 ## [0.2.0] - 2026-10-25
 
 ### Added

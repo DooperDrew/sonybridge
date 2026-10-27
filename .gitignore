@@ -15,6 +15,10 @@ Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
+# QA test artifacts
+/qa-output/
+qa-reports/**/screenshots/
+
 # IDE & Editor files
 .vscode/
 .idea/
