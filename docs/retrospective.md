@@ -1,6 +1,6 @@
-# SonyBridge — Retrospective (M0 → v0.2.1)
+# SonyBridge — Retrospective (M0 → v0.3.0)
 
-> **Date:** October 2026 · **Scope:** Milestones M0–M12, releases v0.1.0 / v0.2.0 / v0.2.1.  
+> **Date:** October 2026 · **Scope:** Milestones M0–M12, releases v0.1.0 / v0.2.0 / v0.3.0.  
 > **Repository:** [https://github.com/DooperDrew/sonybridge](https://github.com/DooperDrew/sonybridge)  
 > **Method:** Transcript mining + git history + documentation review across agent sessions.  
 > **Generic Lessons:** Promoted to the `project-kickstart` plugin and `docs/lessons-learned.md`.

@@ -37,12 +37,12 @@ flowchart TD
 - **Status:** Official `1.9.0` multi-file manifests (`DooperDrew.SonyBridge.yaml`, `.installer.yaml`, `.locale.en-US.yaml`) and singleton manifest generated in [`packaging/winget/`](../packaging/winget/) via [`scripts/generate-manifests.ps1`](../scripts/generate-manifests.ps1).
 - **Local Installation & Validation:**
   ```powershell
-  winget validate --manifest .\packaging\winget\manifests\d\DooperDrew\SonyBridge\0.2.0\
-  winget install --manifest .\packaging\winget\manifests\d\DooperDrew\SonyBridge\0.2.0\
+  winget validate --manifest .\packaging\winget\manifests\d\DooperDrew\SonyBridge\0.3.0\
+  winget install --manifest .\packaging\winget\manifests\d\DooperDrew\SonyBridge\0.3.0\
   ```
 - **Upstream Submission to `microsoft/winget-pkgs`:**
   1. Fork [`microsoft/winget-pkgs`](https://github.com/microsoft/winget-pkgs).
-  2. Copy `packaging/winget/manifests/d/DooperDrew/SonyBridge/0.2.0/` into `manifests/d/DooperDrew/SonyBridge/0.2.0/`.
+  2. Copy `packaging/winget/manifests/d/DooperDrew/SonyBridge/0.3.0/` into `manifests/d/DooperDrew/SonyBridge/0.3.0/`.
   3. Open a Pull Request to `microsoft/winget-pkgs`.
 
 ### 2.2 Scoop Package Manager

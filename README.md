@@ -4,7 +4,7 @@
 
 **A lightweight, native Windows 10/11 system tray companion that brings the full power of the *Sony | Headphones Connect* app to the PC desktop for the WH-1000XM3, WH-1000XM4, WH-1000XM5, and WF series.**
 
-[![Latest Release](https://img.shields.io/github/v/release/DooperDrew/sonybridge?logo=github&label=release%20v0.2.0)](https://github.com/DooperDrew/sonybridge/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/DooperDrew/sonybridge?logo=github&label=release%20v0.3.0)](https://github.com/DooperDrew/sonybridge/releases/latest)
 [![CI](https://github.com/DooperDrew/sonybridge/actions/workflows/ci.yml/badge.svg)](https://github.com/DooperDrew/sonybridge/actions/workflows/ci.yml)
 [![Rust Stable](https://img.shields.io/badge/rust-stable-brightgreen.svg)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -65,7 +65,7 @@ Install directly using the official Windows Package Manager:
 winget install DooperDrew.SonyBridge
 
 # Or install directly from the local repository manifest:
-winget install --manifest packaging/winget/manifests/d/DooperDrew/SonyBridge/0.2.0/
+winget install --manifest packaging/winget/manifests/d/DooperDrew/SonyBridge/0.3.0/
 ```
 
 ### Option 2: Scoop Package Manager
@@ -75,9 +75,9 @@ scoop install https://raw.githubusercontent.com/DooperDrew/sonybridge/main/packa
 ```
 
 ### Option 3: Guided Windows Setup Wizard (Zero-Elevation GUI)
-1. Download the latest release archive ([**`SonyBridge-v0.2.0-windows-x64.zip`**](https://github.com/DooperDrew/sonybridge/releases/download/v0.2.0/SonyBridge-v0.2.0-windows-x64.zip)) from [GitHub Releases](https://github.com/DooperDrew/sonybridge/releases/latest).
-2. Extract the ZIP and double-click **`setup.cmd`** (or run `.\setup-wizard.ps1` in PowerShell).
-3. The graphical Windows Forms setup wizard lets you:
+1. Download the standalone installer ([**`SonyBridge-Setup.exe`**](https://github.com/DooperDrew/sonybridge/releases/download/v0.3.0/SonyBridge-Setup.exe)) or portable bundle ([**`SonyBridge-v0.3.0-windows-x64.zip`**](https://github.com/DooperDrew/sonybridge/releases/download/v0.3.0/SonyBridge-v0.3.0-windows-x64.zip)) from [GitHub Releases](https://github.com/DooperDrew/sonybridge/releases/latest).
+2. Run **`SonyBridge-Setup.exe`** (or extract the ZIP and double-click `setup.cmd` / `setup-wizard.ps1`).
+3. The progressive setup wizard lets you:
    - Choose your installation directory (defaults to `%LOCALAPPDATA%\Programs\SonyBridge`).
    - Create **Start Menu** (`SonyBridge` & `SonyBridge Diagnostic Probe`) and **Desktop** shortcuts.
    - Configure automatic launch at Windows sign-in (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run\SonyBridge`).
@@ -97,8 +97,8 @@ scoop install https://raw.githubusercontent.com/DooperDrew/sonybridge/main/packa
 ```
 
 ### Option 4: Portable ZIP (No Installation Required)
-1. Download and extract [`SonyBridge-v0.2.0-windows-x64.zip`](https://github.com/DooperDrew/sonybridge/releases/download/v0.2.0/SonyBridge-v0.2.0-windows-x64.zip).
-2. Double-click **`sonybridge-app.exe`** (or run `.\sonybridge-cli.exe probe` for headless diagnostics).
+1. Download and extract [`SonyBridge-v0.3.0-portable.zip`](https://github.com/DooperDrew/sonybridge/releases/download/v0.3.0/SonyBridge-v0.3.0-portable.zip) (or [`SonyBridge-v0.3.0-windows-x64.zip`](https://github.com/DooperDrew/sonybridge/releases/download/v0.3.0/SonyBridge-v0.3.0-windows-x64.zip)).
+2. Double-click **`sonybridge-app.exe`** (or run `.\sonybridge-app.exe probe` for headless diagnostics).
 3. The headphone tray icon appears immediately in the Windows notification area. Zero registry keys touched—runs cleanly from any local folder or USB drive.
 
 ---
@@ -153,8 +153,8 @@ cargo build --workspace --release
 cargo run -p sonybridge-cli -- probe
 
 # 3. Package portable release archive (.zip) & generate WinGet/Scoop manifests
-.\scripts\package-release.ps1 -Version "0.2.0" -SkipBuild
-.\scripts\generate-manifests.ps1 -Version "0.2.0"
+.\scripts\package-release.ps1 -Version "0.3.0" -SkipBuild
+.\scripts\generate-manifests.ps1 -Version "0.3.0"
 ```
 
 ---
@@ -171,9 +171,11 @@ Progress is tracked 1:1 via [GitHub Milestones](https://github.com/DooperDrew/so
 - [x] **[M5: ANC, Ambient Sound & 5-Band Equalizer UI](https://github.com/DooperDrew/sonybridge/issues/6)** — Glassmorphic UI, WH-1000XM3 opcodes (`0x68`, `0x58`), [Wire Inspector (`#12`)](https://github.com/DooperDrew/sonybridge/issues/12), and [1-Click Sound Profiles (`#13`)](https://github.com/DooperDrew/sonybridge/issues/13).
 - [x] **[M6: Bilingual Localization (`EN`/`IT`) & Onboarding](https://github.com/DooperDrew/sonybridge/issues/7)** — English/Italian locale bundles, persistent `AppConfig`, and [Guided Setup Wizard & First-Run Onboarding (`#14`)](https://github.com/DooperDrew/sonybridge/issues/14).
 - [x] **[M7: Registry Autostart & Power Controls](https://github.com/DooperDrew/sonybridge/issues/8)** — `HKCU\...\Run` startup manager, Auto-Power Off (`0x28`), and Touch Sensor lock (`0xD8`).
-- [x] **[M8: Release Packaging, Portable ZIP & Manifests](https://github.com/DooperDrew/sonybridge/issues/9)** — Zero-build portable `.zip` releases (`v0.1.0` & `v0.2.0`), WinForms setup wizard, Inno Setup script, and WinGet/Scoop manifests.
+- [x] **[M8: Release Packaging, Portable ZIP & Manifests](https://github.com/DooperDrew/sonybridge/issues/9)** — Zero-build portable `.zip` releases (`v0.1.0`, `v0.2.0`, `v0.3.0`), WinForms setup wizard, Inno Setup script, and WinGet/Scoop manifests.
 - [ ] **M9: Empirical Physical Hardware QA (WH-1000XM3)** — Physical headphone validation matrix ([`#10`](https://github.com/DooperDrew/sonybridge/issues/10)) and sleep/resume recovery ([`#11`](https://github.com/DooperDrew/sonybridge/issues/11)). See [docs/06-qa-and-validation.md](docs/06-qa-and-validation.md).
-- [x] **[M10: Multi-Model Expansion & Community Ecosystem](https://github.com/DooperDrew/sonybridge/issues/15)** — Multi-agent methodology, Copilot Cloud Agent integration, and community distribution strategy.
+- [x] **[M10: Autonomous UI/UX & Accessibility Hardening](https://github.com/DooperDrew/sonybridge/milestone/12)** — 4 autonomous QA cycles with `ui-qa-tester`, viewport clipping fix (`#16`), 75 ARIA accessibility labels (`#17`), responsive wizard modal (`#18`), and WCAG AA contrast elevation (`#19`).
+- [x] **[M11: Multi-Model Expansion & Community Ecosystem](https://github.com/DooperDrew/sonybridge/issues/15)** — Multi-agent methodology, Copilot Cloud Agent integration, and community distribution strategy.
+- [x] **[M12: Single Unified Executable, Dynamic Tray Telemetry & Setup Ergonomics](https://github.com/DooperDrew/sonybridge/issues/20)** — Unified CLI dispatch (`sonybridge-app.exe probe`), dynamic `main_tray` tooltip updates, in-app maintenance buttons, and `SonyBridge-Setup.exe` staging.
 
 ---
 

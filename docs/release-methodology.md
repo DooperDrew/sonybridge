@@ -5,7 +5,7 @@
 | Component | Increment Trigger | Examples in SonyBridge |
 |---|---|---|
 | **MAJOR** (`X.0.0`) | Breaking architecture shifts, incompatible config schema changes, or graduation to production `v1.0.0`. | `v1.0.0`: General availability release after physical WH-1000XM3/XM4/XM5 hardware sign-off. |
-| **MINOR** (`0.X.0`) | New backward-compatible features, UX enhancements, installers, or additional Sony headphone models. | `v0.2.0`: Real WH-1000XM3 MDR v1 byte-stuffed protocol, `IPolicyConfig` A2DP enforcer, 3-tab UI, Sound Profiles, WinForms Setup Wizard, WinGet/Scoop manifests. |
+| **MINOR** (`0.X.0`) | New backward-compatible features, UX enhancements, installers, or additional Sony headphone models. | `v0.2.0`: Real WH-1000XM3 MDR v1 byte-stuffed protocol, `IPolicyConfig` A2DP enforcer, 3-tab UI, Sound Profiles, WinForms Setup Wizard, WinGet/Scoop manifests.<br/>`v0.3.0`: Single unified executable (`sonybridge-app probe`), standalone installer (`SonyBridge-Setup.exe`), dynamic tray telemetry, in-app maintenance tools, and automated accessibility hardening (`ui-qa-tester`). |
 | **PATCH** (`0.X.Y`) | Bug fixes, RFCOMM timing adjustments, translation updates. | `v0.2.1`: Bluetooth reconnection backoff tuning, locale refinements. |
 
 ---

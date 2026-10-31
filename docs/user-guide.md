@@ -51,7 +51,7 @@ Install directly using the official Windows Package Manager:
 winget install DooperDrew.SonyBridge
 
 # Or install directly from the local repository manifest:
-winget install --manifest packaging/winget/manifests/d/DooperDrew/SonyBridge/0.2.0/
+winget install --manifest packaging/winget/manifests/d/DooperDrew/SonyBridge/0.3.0/
 ```
 
 ### Method 2: Scoop Package Manager
@@ -61,9 +61,9 @@ scoop install https://raw.githubusercontent.com/DooperDrew/sonybridge/main/packa
 ```
 
 ### Method 3: Guided Windows Setup Wizard (Zero-Elevation GUI)
-SonyBridge includes a zero-elevation graphical Windows Forms Setup Wizard inside every release archive:
-1. Download **[`SonyBridge-v0.2.0-windows-x64.zip`](https://github.com/DooperDrew/sonybridge/releases/download/v0.2.0/SonyBridge-v0.2.0-windows-x64.zip)** from [GitHub Releases](https://github.com/DooperDrew/sonybridge/releases/latest).
-2. Extract the archive and double-click **`setup.cmd`** (or open PowerShell and run `.\setup-wizard.ps1`).
+SonyBridge provides a single standalone installer (`SonyBridge-Setup.exe`) and a zero-elevation graphical Windows Setup Wizard:
+1. Download **[`SonyBridge-Setup.exe`](https://github.com/DooperDrew/sonybridge/releases/download/v0.3.0/SonyBridge-Setup.exe)** or **[`SonyBridge-v0.3.0-windows-x64.zip`](https://github.com/DooperDrew/sonybridge/releases/download/v0.3.0/SonyBridge-v0.3.0-windows-x64.zip)** from [GitHub Releases](https://github.com/DooperDrew/sonybridge/releases/latest).
+2. Run **`SonyBridge-Setup.exe`** (or extract the archive and run `setup.cmd` / `setup-wizard.ps1`).
 3. The graphical setup wizard allows you to:
    - Select your installation directory (default: `%LOCALAPPDATA%\Programs\SonyBridge`, no Administrator privileges needed).
    - Toggle **Start Menu** (`SonyBridge` and `SonyBridge Diagnostic Probe`) and **Desktop** shortcuts.
@@ -84,8 +84,8 @@ For unattended, console, or scripted environments:
 ```
 
 ### Method 4: Portable Run (No Installation Required)
-1. Download and extract [`SonyBridge-v0.2.0-windows-x64.zip`](https://github.com/DooperDrew/sonybridge/releases/download/v0.2.0/SonyBridge-v0.2.0-windows-x64.zip) into any folder (e.g., `C:\Tools\SonyBridge` or a USB drive).
-2. Double-click **`sonybridge-app.exe`**.
+1. Download and extract [`SonyBridge-v0.3.0-portable.zip`](https://github.com/DooperDrew/sonybridge/releases/download/v0.3.0/SonyBridge-v0.3.0-portable.zip) (or [`SonyBridge-v0.3.0-windows-x64.zip`](https://github.com/DooperDrew/sonybridge/releases/download/v0.3.0/SonyBridge-v0.3.0-windows-x64.zip)) into any folder (e.g., `C:\Tools\SonyBridge` or a USB drive).
+2. Double-click **`sonybridge-app.exe`** (or run `.\sonybridge-app.exe probe` in terminal).
 3. The SonyBridge headphone icon appears in your Windows System Tray (notification area next to the clock) and opens the control dashboard.
 
 ---

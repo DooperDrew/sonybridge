@@ -93,5 +93,5 @@ cargo test --workspace
 
 # Production release build & portable ZIP packaging
 cargo build --workspace --release
-.\scripts\package-release.ps1 -Version "0.2.0" -SkipBuild
+.\scripts\package-release.ps1 -Version "0.3.0" -SkipBuild
 ```

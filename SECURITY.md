@@ -10,8 +10,9 @@ Security updates and critical patches are released for the following versions:
 
 | Version | Supported | Notes |
 |---|---|---|
-| `v0.2.x` | ✅ Yes | Current stable release branch |
-| `v0.1.x` | ❌ No | Please upgrade to `v0.2.0` |
+| `v0.3.x` | ✅ Yes | Current stable release branch |
+| `v0.2.x` | ⚠️ Limited | Previous release branch |
+| `v0.1.x` | ❌ No | Please upgrade to `v0.3.0` |
 
 ---
 

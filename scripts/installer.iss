@@ -1,7 +1,7 @@
 ; Inno Setup Script for SonyBridge
 ; Zero-elevation Windows installer for Sony Bluetooth Headphones (WH-1000XM3 / XM4 / XM5)
 #define MyAppName "SonyBridge"
-#define MyAppVersion "0.2.0"
+#define MyAppVersion "0.3.0"
 #define MyAppPublisher "DooperDrew & SonyBridge Contributors"
 #define MyAppURL "https://github.com/DooperDrew/sonybridge"
 #define MyAppExeName "sonybridge-app.exe"

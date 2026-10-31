@@ -2,7 +2,7 @@
 
 All notable changes to **SonyBridge** are documented in this file.
 
-## [Unreleased]
+## [0.3.0] - 2026-10-31
 
 ### Added (Milestone M12: Single Unified Executable, Dynamic Tray Telemetry & Setup Ergonomics)
 - **Single-Binary CLI & Probe Unification (`sonybridge-app`)**:
@@ -13,7 +13,7 @@ All notable changes to **SonyBridge** are documented in this file.
 - **In-App Maintenance & Guided Tools**:
   - Added dedicated controls in the "Windows & Power" tab to re-run the guided onboarding wizard (`#btn-reopen-wizard`), run the terminal diagnostic probe (`#btn-run-probe`), and cleanly uninstall SonyBridge (`#btn-uninstall-app`).
 - **Release Packaging Overhaul (`scripts/package-release.ps1`)**:
-  - Produces a single standalone installer (`SonyBridge-Setup.exe`) and single-binary clean portable archive (`SonyBridge-v<Version>-portable.zip`) alongside WinGet and Scoop manifests.
+  - Produces a single standalone installer (`SonyBridge-Setup.exe`) and single-binary clean portable archive (`SonyBridge-v0.3.0-portable.zip`) alongside WinGet and Scoop manifests.
 - **Empirical QA & Retrospective Documentation**:
   - Added `.github/ISSUE_TEMPLATE/qa_verification.yml` for structured physical hardware test submissions.
   - Authored comprehensive milestone retrospective in `docs/retrospective.md`.
