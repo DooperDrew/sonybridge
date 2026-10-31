@@ -4,6 +4,20 @@ All notable changes to **SonyBridge** are documented in this file.
 
 ## [Unreleased]
 
+### Added (Milestone M12: Single Unified Executable, Dynamic Tray Telemetry & Setup Ergonomics)
+- **Single-Binary CLI & Probe Unification (`sonybridge-app`)**:
+  - Embedded diagnostic hardware probe (`probe`), A2DP audio routing (`--enforce-a2dp`), and setup/uninstallation switches directly into `sonybridge-app.exe` with parent console attachment (`AttachConsole`).
+  - Running without arguments launches the glassmorphic desktop companion as usual.
+- **Dynamic System Tray Telemetry**:
+  - Registered unique tray ID `main_tray` and added real-time live tooltip updates on ANC/ambient mode transitions, sound profile switches, and battery telemetry.
+- **In-App Maintenance & Guided Tools**:
+  - Added dedicated controls in the "Windows & Power" tab to re-run the guided onboarding wizard (`#btn-reopen-wizard`), run the terminal diagnostic probe (`#btn-run-probe`), and cleanly uninstall SonyBridge (`#btn-uninstall-app`).
+- **Release Packaging Overhaul (`scripts/package-release.ps1`)**:
+  - Produces a single standalone installer (`SonyBridge-Setup.exe`) and single-binary clean portable archive (`SonyBridge-v<Version>-portable.zip`) alongside WinGet and Scoop manifests.
+- **Empirical QA & Retrospective Documentation**:
+  - Added `.github/ISSUE_TEMPLATE/qa_verification.yml` for structured physical hardware test submissions.
+  - Authored comprehensive milestone retrospective in `docs/retrospective.md`.
+
 ### Hardened & Fixed (Autonomous UI/UX & Accessibility QA via `ui-qa-tester`)
 - **Accessibility & Contrast Conformance**:
   - Added explicit `aria-label` and `title` attributes to all sliders, preset selectors, equalizer bands, and toggles (`#17`).

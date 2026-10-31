@@ -1,0 +1,61 @@
+name: "🧪 Empirical QA & Hardware Verification Report"
+description: "Submit an empirical verification report from manual, hardware, or end-to-end QA testing on Sony headphones"
+title: "[QA] <WH-1000XM3 / XM4 / XM5>: <Verification Summary>"
+labels: ["qa-verification", "evidence"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to submit empirical verification evidence for test matrix items in `docs/06-qa-and-validation.md`.
+        Remember the **Claims Follow Evidence** rule: tests remain marked `Pending` until verified with documented evidence.
+  - type: input
+    id: environment
+    attributes:
+      label: 🖥️ Test Environment & Platform
+      description: OS version, Bluetooth adapter model, and connected Sony headphone model/firmware.
+      placeholder: e.g. Windows 11 23H2 x64, Intel Wireless Bluetooth 5.3, Sony WH-1000XM3 (Firmware 4.5.2)
+    validations:
+      required: true
+  - type: input
+    id: version_tested
+    attributes:
+      label: 📦 Software Version / Commit Tested
+      description: The exact release tag, commit hash, or build tested.
+      placeholder: e.g. v0.2.0 or commit e7866dd
+    validations:
+      required: true
+  - type: textarea
+    id: test_matrix_results
+    attributes:
+      label: 📋 Test Matrix Checklist & Procedures
+      description: List the test IDs from docs/06-qa-and-validation.md and their empirical outcomes.
+      value: |
+        - [ ] **QA-01 (Pairing & Discovery):** PASS | FAIL — Notes: 
+        - [ ] **QA-02 (Battery Monitoring):** PASS | FAIL — Notes: 
+        - [ ] **QA-03 (ANC Toggle):** PASS | FAIL — Notes: 
+        - [ ] **QA-04 (Ambient Sound Slider 1..20):** PASS | FAIL — Notes: 
+        - [ ] **QA-05 (Focus on Voice):** PASS | FAIL — Notes: 
+        - [ ] **QA-06 (5-Band Equalizer & Clear Bass):** PASS | FAIL — Notes: 
+        - [ ] **QA-07 (Hardware EQ EEPROM Persistence):** PASS | FAIL — Notes: 
+        - [ ] **QA-08 (System Tray Quick Menu):** PASS | FAIL — Notes: 
+        - [ ] **QA-09 (1-Click Reconnect):** PASS | FAIL — Notes: 
+        - [ ] **QA-10 (Smart Audio Routing / A2DP Enforcement):** PASS | FAIL — Notes: 
+        - [ ] **QA-SYS-01 (Bluetooth Out-of-Range Recovery):** PASS | FAIL — Notes: 
+        - [ ] **QA-SYS-02 (Windows Sleep / Resume Reconnection):** PASS | FAIL — Notes: 
+    validations:
+      required: true
+  - type: textarea
+    id: empirical_evidence
+    attributes:
+      label: 🔬 Empirical Evidence & Logs
+      description: Paste probe output (sonybridge-app probe), hex wire logs, or screenshots.
+      placeholder: Paste console output from 'sonybridge-app probe' or screenshots here...
+    validations:
+      required: true
+  - type: textarea
+    id: observations_and_regressions
+    attributes:
+      label: ⚠️ Observations, Quirks & Potential Regressions
+      description: Any unexpected timing quirks, UI glitches, or Bluetooth RFCOMM disconnects.
+    validations:
+      required: false

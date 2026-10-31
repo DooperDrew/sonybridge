@@ -69,8 +69,11 @@ Every contribution by Copilot MUST respect the non-functional requirements defin
 
 ## 4. Verification Gate & Environment Hygiene
 
-### Toolchain PATH Resiliency:
-Never assume standard toolchains (`cargo`, `rustup`) are globally present in subshell `$env:PATH`. On Windows PowerShell, always prepend `$env:USERPROFILE\.cargo\bin` to `$env:PATH`.
+### Toolchain PATH Resiliency & PowerShell Hygiene:
+Never assume standard toolchains (`cargo`, `rustup`) are globally present in subshell `$env:PATH`. On Windows PowerShell, always prepend `$env:USERPROFILE\.cargo\bin` to `$env:PATH`. When writing files, force UTF-8 without BOM (`[System.IO.File]::WriteAllText(..., [System.Text.UTF8Encoding]::new($false))` or `Set-Content -Encoding utf8`) and set `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8` before capturing external CLI stdout.
+
+### Single-Binary Distribution & Setup Ergonomics:
+Maintain single-binary architecture (`sonybridge-app.exe` dispatches GUI, CLI diagnostic probe, setup, or uninstaller based on invocation flags) and stage standalone installer `SonyBridge-Setup.exe` alongside clean portable packages. Never commit build artifacts to git.
 
 ### Verification Gate (Must Pass 100% Locally):
 Before submitting a Draft PR or marking an implementation complete, run the project verification gate:

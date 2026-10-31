@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.6.0.schema.json
 PackageIdentifier: DooperDrew.SonyBridge
-PackageVersion: 0.2.0
+PackageVersion: 0.2.1
 PackageLocale: en-US
 Publisher: DooperDrew
 PackageName: SonyBridge
@@ -18,5 +18,5 @@ Installers:
         PortableCommandAlias: sonybridge
       - RelativeFilePath: sonybridge-cli.exe
         PortableCommandAlias: sonybridge-cli
-    InstallerUrl: https://github.com/DooperDrew/sonybridge/releases/download/v0.2.0/SonyBridge-v0.2.0-windows-x64.zip
-    InstallerSha256: DB63DAEF77853FF8FF220328F815678F2C6340F1405657BE6DF3FC89CD15740F
+    InstallerUrl: https://github.com/DooperDrew/sonybridge/releases/download/v0.2.1/SonyBridge-v0.2.1-windows-x64.zip
+    InstallerSha256: 7054337CE81BAF5179D06F81B7E0D24ED46A740F80139FCF6582D4CAF52DF15B

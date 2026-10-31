@@ -372,5 +372,30 @@ document.addEventListener("DOMContentLoaded", () => {
     invoke("set_auto_off", { minutes: parseInt(e.target.value, 10) }).then(updateWireConsole).catch(console.error);
   });
 
+  // Guided Tools & Maintenance
+  const btnReopenWizard = document.getElementById("btn-reopen-wizard");
+  if (btnReopenWizard) {
+    btnReopenWizard.addEventListener("click", () => {
+      onboardingModal.style.display = "flex";
+      invoke("relaunch_setup_wizard").catch(console.error);
+    });
+  }
+
+  const btnRunProbe = document.getElementById("btn-run-probe");
+  if (btnRunProbe) {
+    btnRunProbe.addEventListener("click", () => {
+      invoke("run_diagnostic_probe_in_terminal").catch(console.error);
+    });
+  }
+
+  const btnUninstallApp = document.getElementById("btn-uninstall-app");
+  if (btnUninstallApp) {
+    btnUninstallApp.addEventListener("click", () => {
+      if (confirm("Are you sure you want to uninstall SonyBridge? This will launch the uninstallation wizard.")) {
+        invoke("trigger_uninstall").catch(console.error);
+      }
+    });
+  }
+
   updateEqLabels();
 });

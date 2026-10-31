@@ -100,6 +100,7 @@ fn complete_onboarding(state: State<AppState>) -> CommandResult {
 
 #[tauri::command]
 async fn set_anc_mode(
+    app: tauri::AppHandle,
     state: State<'_, AppState>,
     payload: AncPayload,
 ) -> Result<CommandResult, String> {
@@ -127,6 +128,13 @@ async fn set_anc_mode(
         if transport.is_connected() {
             let _ = transport.send(&wire_bytes).await;
         }
+    }
+
+    if let Some(tray) = app.tray_by_id("main_tray") {
+        let _ = tray.set_tooltip(Some(format!(
+            "SonyBridge — WH-1000XM3 (85% • {})",
+            payload.mode
+        )));
     }
 
     Ok(CommandResult {
@@ -188,6 +196,7 @@ async fn set_equalizer(
 
 #[tauri::command]
 async fn apply_sound_profile(
+    app: tauri::AppHandle,
     state: State<'_, AppState>,
     profile_name: String,
 ) -> Result<CommandResult, String> {
@@ -221,6 +230,10 @@ async fn apply_sound_profile(
             }
         }
 
+        if let Some(tray) = app.tray_by_id("main_tray") {
+            let _ = tray.set_tooltip(Some(format!("SonyBridge — WH-1000XM3 ({profile_name})")));
+        }
+
         Ok(CommandResult {
             status: "ok".to_string(),
             message: Some(format!("Applied profile: {profile_name}")),
@@ -232,6 +245,68 @@ async fn apply_sound_profile(
         })
     } else {
         Err(format!("Profile '{profile_name}' not found"))
+    }
+}
+
+#[tauri::command]
+fn relaunch_setup_wizard() -> CommandResult {
+    let script_path = std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(|d| d.join("setup-wizard.ps1")))
+        .unwrap_or_else(|| PathBuf::from("setup-wizard.ps1"));
+    let _ = std::process::Command::new("powershell")
+        .args([
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            &script_path.to_string_lossy(),
+        ])
+        .spawn();
+    CommandResult {
+        status: "ok".to_string(),
+        message: Some("Launched Setup Wizard".to_string()),
+        wire_hex: None,
+    }
+}
+
+#[tauri::command]
+fn trigger_uninstall() -> CommandResult {
+    let script_path = std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(|d| d.join("uninstall.ps1")))
+        .unwrap_or_else(|| PathBuf::from("uninstall.ps1"));
+    let _ = std::process::Command::new("powershell")
+        .args([
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            &script_path.to_string_lossy(),
+        ])
+        .spawn();
+    CommandResult {
+        status: "ok".to_string(),
+        message: Some("Launched Uninstallation Wizard".to_string()),
+        wire_hex: None,
+    }
+}
+
+#[tauri::command]
+fn run_diagnostic_probe_in_terminal() -> CommandResult {
+    if let Ok(exe) = std::env::current_exe() {
+        let _ = std::process::Command::new("powershell")
+            .args([
+                "-NoExit",
+                "-Command",
+                &format!("& '{}' probe", exe.display()),
+            ])
+            .spawn();
+    }
+    CommandResult {
+        status: "ok".to_string(),
+        message: Some("Opened diagnostic probe in terminal".to_string()),
+        wire_hex: None,
     }
 }
 
@@ -375,6 +450,110 @@ fn set_autostart(state: State<AppState>, enabled: bool) -> CommandResult {
 fn main() {
     tracing_subscriber::fmt::init();
 
+    let args: Vec<String> = std::env::args().collect();
+
+    // 1. Diagnostic Probe CLI command
+    if args.iter().any(|a| a == "probe" || a == "--probe") {
+        let cli_path = std::env::current_exe()
+            .ok()
+            .and_then(|p| p.parent().map(|d| d.join("sonybridge-cli.exe")))
+            .unwrap_or_else(|| PathBuf::from("sonybridge-cli.exe"));
+        if cli_path.exists() {
+            let _ = std::process::Command::new(cli_path).arg("probe").status();
+        } else {
+            sonybridge_windows::attach_parent_console();
+            let rt = tokio::runtime::Runtime::new().expect("failed to create Tokio runtime");
+            rt.block_on(async {
+                sonybridge_windows::run_diagnostic_probe().await;
+            });
+        }
+        return;
+    }
+
+    // 2. Audio Sanitizer quick enforcement
+    if args
+        .iter()
+        .any(|a| a == "--enforce-a2dp" || a == "enforce-a2dp")
+    {
+        let cli_path = std::env::current_exe()
+            .ok()
+            .and_then(|p| p.parent().map(|d| d.join("sonybridge-cli.exe")))
+            .unwrap_or_else(|| PathBuf::from("sonybridge-cli.exe"));
+        if cli_path.exists() {
+            let _ = std::process::Command::new(cli_path)
+                .arg("enforce-a2dp")
+                .status();
+        } else {
+            sonybridge_windows::attach_parent_console();
+            println!("Enforcing Windows Stereo (A2DP) default audio endpoint routing...");
+            match AudioEndpointSanitizer::enforce_stereo_a2dp() {
+                Ok(msg) => println!("Success! Default audio routed: {}", msg),
+                Err(e) => eprintln!("Failed to enforce A2DP: {e}"),
+            }
+        }
+        return;
+    }
+
+    // 3. Setup / Installer mode
+    let is_explicit_gui = args.iter().any(|a| a == "--gui" || a == "--settings");
+    let is_explicit_setup = args.iter().any(|a| a == "--setup" || a == "--install");
+    let exe_name = std::env::current_exe()
+        .ok()
+        .and_then(|p| p.file_stem().map(|s| s.to_string_lossy().to_lowercase()))
+        .unwrap_or_default();
+    let is_setup_exe = exe_name.contains("setup") || exe_name.contains("installer");
+
+    if is_explicit_setup || (is_setup_exe && !is_explicit_gui) {
+        let script = std::env::current_exe()
+            .ok()
+            .and_then(|p| p.parent().map(|d| d.join("setup-wizard.ps1")))
+            .unwrap_or_else(|| PathBuf::from("setup-wizard.ps1"));
+        let _ = std::process::Command::new("powershell")
+            .args([
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                &script.to_string_lossy(),
+            ])
+            .spawn();
+        return;
+    }
+
+    // 4. Uninstall mode
+    if args.iter().any(|a| a == "--uninstall") {
+        let script = std::env::current_exe()
+            .ok()
+            .and_then(|p| p.parent().map(|d| d.join("uninstall.ps1")))
+            .unwrap_or_else(|| PathBuf::from("uninstall.ps1"));
+        let _ = std::process::Command::new("powershell")
+            .args([
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                &script.to_string_lossy(),
+            ])
+            .spawn();
+        return;
+    }
+
+    // 5. Help / CLI information
+    if args.iter().any(|a| a == "--help" || a == "-h") {
+        sonybridge_windows::attach_parent_console();
+        println!("SonyBridge — Sony Bluetooth Headphones System Tray Companion");
+        println!("\nUsage: sonybridge-app.exe [OPTIONS] [COMMAND]");
+        println!("\nCommands:");
+        println!("  probe              Probe local Bluetooth environment for paired Sony headphones and audio endpoints");
+        println!("\nOptions:");
+        println!("  --gui, --settings  Open the SonyBridge desktop control window (default)");
+        println!("  --enforce-a2dp     Enforce high-resolution Stereo A2DP audio routing");
+        println!("  --setup, --install Launch the guided Windows Setup Wizard");
+        println!("  --uninstall        Launch the clean uninstallation wizard");
+        println!("  -h, --help         Print help information");
+        return;
+    }
+
     let cfg_path = default_config_path();
     let loaded_cfg = AppConfig::load_from_path(&cfg_path);
 
@@ -399,7 +578,10 @@ fn main() {
             enforce_a2dp,
             set_touch_sensor,
             set_auto_off,
-            set_autostart
+            set_autostart,
+            relaunch_setup_wizard,
+            trigger_uninstall,
+            run_diagnostic_probe_in_terminal
         ])
         .setup(|app| {
             // Build Context Menu for System Tray
@@ -431,8 +613,8 @@ fn main() {
                 ])
                 .build()?;
 
-            // Build System Tray Icon
-            let _tray = TrayIconBuilder::new()
+            // Build System Tray Icon with unique ID for dynamic telemetry updates
+            let _tray = TrayIconBuilder::with_id("main_tray")
                 .tooltip("SonyBridge — WH-1000XM3 (85% • ANC On)")
                 .menu(&tray_menu)
                 .show_menu_on_left_click(false)

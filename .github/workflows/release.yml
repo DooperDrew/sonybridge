@@ -28,15 +28,16 @@ jobs:
       - name: Build release binaries
         run: cargo build --workspace --release
 
-      - name: Package Portable Release Archive (.zip)
+      - name: Package Portable Release Archive & Standalone Installer
         shell: pwsh
         run: |
           $version = $env:GITHUB_REF_NAME -replace '^v', ''
           .\scripts\package-release.ps1 -Version $version -SkipBuild
-          echo "ARCHIVE_PATH=dist/SonyBridge-v$version-windows-x64.zip" >> $env:GITHUB_ENV
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.ARCHIVE_PATH }}
+          files: |
+            dist/SonyBridge-Setup.exe
+            dist/*.zip
           generate_release_notes: true

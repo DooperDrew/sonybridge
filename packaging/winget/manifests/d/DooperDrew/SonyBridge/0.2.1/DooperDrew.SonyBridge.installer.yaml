@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.9.0.schema.json
+PackageIdentifier: DooperDrew.SonyBridge
+PackageVersion: 0.2.1
+InstallerType: zip
+NestedInstallerType: portable
+NestedInstallerFiles:
+  - RelativeFilePath: sonybridge-app.exe
+    PortableCommandAlias: sonybridge
+  - RelativeFilePath: sonybridge-cli.exe
+    PortableCommandAlias: sonybridge-cli
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/DooperDrew/sonybridge/releases/download/v0.2.1/SonyBridge-v0.2.1-windows-x64.zip
+    InstallerSha256: 7054337CE81BAF5179D06F81B7E0D24ED46A740F80139FCF6582D4CAF52DF15B
+    UpgradeBehavior: install
+ManifestType: installer
+ManifestVersion: 1.9.0
